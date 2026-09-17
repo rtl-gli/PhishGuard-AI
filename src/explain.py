@@ -28,7 +28,7 @@ FEATURE_NAMES = {
 
 
 def explain_url(url):
-    """Explain a URL prediction using standardised feature contributions."""
+    """Explain a Decision Tree prediction using its decision path."""
 
     model_data = joblib.load(MODEL_PATH)
 
@@ -50,43 +50,48 @@ def explain_url(url):
         list(model.classes_).index(1)
     ]
 
-    # Get the two stages of the pipeline.
-    scaler = model.named_steps["scaler"]
-    classifier = model.named_steps["classifier"]
+    # Find the decision path taken by this URL.
+    node_indicator = model.decision_path(data)
 
-    # Standardise the feature values.
-    scaled_features = scaler.transform(data)[0]
+    leaf_id = model.apply(data)[0]
 
-    # Calculate each feature's contribution.
-    contributions = []
+    node_ids = node_indicator.indices[
+        node_indicator.indptr[0]:
+        node_indicator.indptr[1]
+    ]
 
-    for feature, value, coefficient in zip(
-        feature_columns,
-        scaled_features,
-        classifier.coef_[0],
-    ):
-        contribution = value * coefficient
+    decisions = []
 
-        contributions.append(
+    for node_id in node_ids:
+
+        if node_id == leaf_id:
+            continue
+
+        feature_index = model.tree_.feature[node_id]
+        threshold = model.tree_.threshold[node_id]
+
+        feature = feature_columns[feature_index]
+        value = features[feature]
+
+        if value <= threshold:
+            direction = "<="
+        else:
+            direction = ">"
+
+        decisions.append(
             {
                 "feature": feature,
-                "value": features[feature],
-                "contribution": contribution,
+                "value": value,
+                "threshold": threshold,
+                "direction": direction,
             }
         )
-
-    # Sort from strongest phishing influence to strongest
-    # legitimate influence.
-    contributions.sort(
-        key=lambda item: abs(item["contribution"]),
-        reverse=True,
-    )
 
     return {
         "url": url,
         "prediction": int(prediction),
         "phishing_probability": float(phishing_probability),
-        "contributions": contributions,
+        "decisions": decisions,
     }
 
 
@@ -112,22 +117,21 @@ if __name__ == "__main__":
     else:
         print("Prediction: Likely legitimate")
 
-    print("\nKey model contributions:")
+    print("\nDecision path:")
 
-    for item in result["contributions"][:5]:
-
-        if item["contribution"] > 0:
-            direction = "phishing"
-        else:
-            direction = "legitimate"
+    for number, decision in enumerate(
+        result["decisions"],
+        start=1,
+    ):
 
         name = FEATURE_NAMES.get(
-            item["feature"],
-            item["feature"],
+            decision["feature"],
+            decision["feature"],
         )
 
         print(
-            f"- {name}: "
-            f"{item['contribution']:+.3f} "
-            f"({direction})"
+            f"{number}. {name} "
+            f"{decision['direction']} "
+            f"{decision['threshold']:.3f} "
+            f"(value: {decision['value']})"
         )

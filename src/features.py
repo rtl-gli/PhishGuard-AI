@@ -16,6 +16,22 @@ TRUSTED_TLDS = {
 }
 
 
+def clean_url(url):
+    """Clean common Markdown link formatting from a URL."""
+    url = str(url).strip()
+
+    # Convert Markdown links such as:
+    # [https://example.com](https://example.com)
+    # into:
+    # https://example.com
+    match = re.match(r"^\[.*?\]\((.*?)\)$", url)
+
+    if match:
+        url = match.group(1)
+
+    return url.strip()
+
+
 def compute_entropy(text):
     """Calculate Shannon entropy of a string."""
     if not text:
@@ -35,10 +51,12 @@ def compute_entropy(text):
 def extract_features(url):
     """Extract the 16 URL features used by the PhishTrap dataset."""
 
-    original_url = str(url).lower().strip()
+    # Clean the input before extracting features.
+    original_url = clean_url(url).lower()
 
-    # PhishTrap adds http:// when a URL has no protocol.
     url_string = original_url
+
+    # Add a protocol if the user doesn't provide one.
     if not url_string.startswith("http"):
         url_string = "http://" + url_string
 
@@ -57,7 +75,8 @@ def extract_features(url):
 
     # 3. Number of digits
     features["digit_count"] = sum(
-        1 for character in url_string if character.isdigit()
+        1 for character in url_string
+        if character.isdigit()
     )
 
     # 4. Number of subdomains
@@ -66,7 +85,7 @@ def extract_features(url):
         len(hostname.split(".")) - 2
     )
 
-    # 5. Trusted TLD
+    # 5. Whether the TLD is considered trusted
     try:
         tld_info = get_tld(
             url_string,
@@ -77,10 +96,11 @@ def extract_features(url):
             tld_info is not None
             and f".{tld_info}" in TRUSTED_TLDS
         )
+
     except Exception:
         features["trusted_tld"] = 0
 
-    # 6. Protocol exists
+    # 6. Whether HTTP/HTTPS protocol is present
     features["protocol_exists"] = int(
         re.match(
             r"^https?://",
@@ -88,11 +108,12 @@ def extract_features(url):
         ) is not None
     )
 
-    # 7. Special characters
+    # 7. Number of special characters
     special_characters = "@-_.,;:#~!$&'()*+/:=?"
 
     features["special_char_count"] = sum(
-        1 for character in url_string
+        1
+        for character in url_string
         if character in special_characters
     )
 
@@ -101,13 +122,17 @@ def extract_features(url):
 
     # 9. Path depth
     features["path_depth"] = len(
-        [part for part in path.split("/") if part]
+        [
+            part
+            for part in path.split("/")
+            if part
+        ]
     )
 
     # 10. Domain length
     features["domain_length"] = len(hostname)
 
-    # 11. Domain is an IP address
+    # 11. Whether the domain is an IP address
     features["is_domain_ip"] = int(
         re.match(
             r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$",
@@ -115,12 +140,12 @@ def extract_features(url):
         ) is not None
     )
 
-    # 12. @ symbol
+    # 12. Whether the URL contains an @ symbol
     features["has_at_symbol"] = int(
         "@" in url_string
     )
 
-    # 13. Double slash redirect
+    # 13. Whether the URL contains a double-slash redirect
     features["has_double_slash_redirect"] = int(
         url_string.count("//") > 1
     )
@@ -137,10 +162,11 @@ def extract_features(url):
             if tld_part
             else 0
         )
+
     except Exception:
         features["tld_length"] = 0
 
-    # 15. Query parameter count
+    # 15. Number of query parameters
     features["query_param_count"] = (
         len(parsed.query.split("&"))
         if parsed.query
