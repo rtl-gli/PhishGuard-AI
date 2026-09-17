@@ -7,3 +7,4 @@ __pycache__/
 model/*.pkl
 # Dataset
 data/raw/*.csv
+data/raw/*.json
