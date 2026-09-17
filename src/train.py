@@ -1,23 +1,23 @@
 from pathlib import Path
 
-import pandas as pd
 import joblib
+import pandas as pd
 
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
 )
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 
-# Load dataset
-data_path = Path("data/raw/phishtrap_full.csv")
-df = pd.read_csv(data_path)
+DATA_PATH = Path("data/raw/phishtrap_full.csv")
+MODEL_PATH = Path("model/phishing_model.pkl")
 
-# Features used by the model
-feature_columns = [
+FEATURE_COLUMNS = [
     "url_length",
     "hyphen_count",
     "digit_count",
@@ -36,11 +36,12 @@ feature_columns = [
     "path_length",
 ]
 
-X = df[feature_columns]
+
+df = pd.read_csv(DATA_PATH)
+
+X = df[FEATURE_COLUMNS]
 y = df["label"]
 
-
-# Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -50,20 +51,22 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-# Train Logistic Regression model
-model = LogisticRegression(max_iter=1000)
+model = Pipeline(
+    [
+        ("scaler", StandardScaler()),
+        ("classifier", LogisticRegression(max_iter=1000)),
+    ]
+)
+
 model.fit(X_train, y_train)
 
-
-# Make predictions
 y_pred = model.predict(X_test)
 
-
-# Evaluate model
 accuracy = accuracy_score(y_test, y_pred)
 
 print(f"Training samples: {len(X_train)}")
 print(f"Testing samples: {len(X_test)}")
+
 print(f"\nAccuracy: {accuracy:.2%}")
 
 print("\nClassification Report:")
@@ -73,14 +76,12 @@ print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 
 
-# Save model and feature list
-model_path = Path("model/phishing_model.pkl")
 joblib.dump(
     {
         "model": model,
-        "features": feature_columns,
+        "features": FEATURE_COLUMNS,
     },
-    model_path,
+    MODEL_PATH,
 )
 
-print(f"\nModel saved to: {model_path}")
+print(f"\nModel saved to: {MODEL_PATH}")
