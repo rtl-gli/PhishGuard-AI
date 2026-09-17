@@ -1,35 +1,65 @@
 from pathlib import Path
 
-from ucimlrepo import fetch_ucirepo
+import pandas as pd
+import joblib
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import joblib
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+)
 
 
 # Load dataset
-phishing_websites = fetch_ucirepo(id=327)
+data_path = Path("data/raw/phishtrap_full.csv")
+df = pd.read_csv(data_path)
 
-X = phishing_websites.data.features
-y = phishing_websites.data.targets["result"]
+# Features used by the model
+feature_columns = [
+    "url_length",
+    "hyphen_count",
+    "digit_count",
+    "subdomain_count",
+    "trusted_tld",
+    "protocol_exists",
+    "special_char_count",
+    "entropy",
+    "path_depth",
+    "domain_length",
+    "is_domain_ip",
+    "has_at_symbol",
+    "has_double_slash_redirect",
+    "tld_length",
+    "query_param_count",
+    "path_length",
+]
 
-# Split data
+X = df[feature_columns]
+y = df["label"]
+
+
+# Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y
+    stratify=y,
 )
 
-# Train model
+
+# Train Logistic Regression model
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train, y_train)
 
-# Predictions
+
+# Make predictions
 y_pred = model.predict(X_test)
 
-# Evaluation
+
+# Evaluate model
 accuracy = accuracy_score(y_test, y_pred)
 
 print(f"Training samples: {len(X_train)}")
@@ -42,8 +72,15 @@ print(classification_report(y_test, y_pred))
 print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 
-# Save model
+
+# Save model and feature list
 model_path = Path("model/phishing_model.pkl")
-joblib.dump(model, model_path)
+joblib.dump(
+    {
+        "model": model,
+        "features": feature_columns,
+    },
+    model_path,
+)
 
 print(f"\nModel saved to: {model_path}")

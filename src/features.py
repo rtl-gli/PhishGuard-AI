@@ -1,83 +1,153 @@
+import math
+import re
 from urllib.parse import urlparse
-import ipaddress
+
+from tld import get_tld
 
 
-SUSPICIOUS_WORDS = [
-    "login",
-    "verify",
-    "verification",
-    "account",
-    "secure",
-    "update",
-    "password",
-    "bank",
-    "signin",
-    "confirm",
-]
+TRUSTED_TLDS = {
+    ".com",
+    ".org",
+    ".net",
+    ".edu",
+    ".gov",
+    ".mil",
+    ".int",
+}
 
 
-def has_ip_address(url):
-    """Return 1 if the URL uses an IP address instead of a domain."""
-    try:
-        hostname = urlparse(url).hostname
+def compute_entropy(text):
+    """Calculate Shannon entropy of a string."""
+    if not text:
+        return 0.0
 
-        if hostname is None:
-            return 0
+    probabilities = [
+        text.count(char) / len(text)
+        for char in set(text)
+    ]
 
-        ipaddress.ip_address(hostname)
-        return 1
-
-    except ValueError:
-        return 0
+    return -sum(
+        probability * math.log2(probability)
+        for probability in probabilities
+    )
 
 
 def extract_features(url):
-    """Extract URL-based phishing indicators."""
+    """Extract the 16 URL features used by the PhishTrap dataset."""
 
-    parsed = urlparse(url)
+    original_url = str(url).lower().strip()
+
+    # PhishTrap adds http:// when a URL has no protocol.
+    url_string = original_url
+    if not url_string.startswith("http"):
+        url_string = "http://" + url_string
+
+    parsed = urlparse(url_string)
+
     hostname = parsed.hostname or ""
+    path = parsed.path or ""
 
-    features = {
-        "url_length": len(url),
+    features = {}
 
-        "hostname_length": len(hostname),
+    # 1. URL length
+    features["url_length"] = len(url_string)
 
-        "number_of_dots": url.count("."),
+    # 2. Number of hyphens
+    features["hyphen_count"] = url_string.count("-")
 
-        "number_of_hyphens": url.count("-"),
+    # 3. Number of digits
+    features["digit_count"] = sum(
+        1 for character in url_string if character.isdigit()
+    )
 
-        "number_of_digits": sum(char.isdigit() for char in url),
+    # 4. Number of subdomains
+    features["subdomain_count"] = max(
+        0,
+        len(hostname.split(".")) - 2
+    )
 
-        "number_of_special_characters": sum(
-            not char.isalnum() for char in url
-        ),
+    # 5. Trusted TLD
+    try:
+        tld_info = get_tld(
+            url_string,
+            fail_silently=True
+        )
 
-        "has_ip_address": has_ip_address(url),
+        features["trusted_tld"] = int(
+            tld_info is not None
+            and f".{tld_info}" in TRUSTED_TLDS
+        )
+    except Exception:
+        features["trusted_tld"] = 0
 
-        "has_at_symbol": int("@" in url),
+    # 6. Protocol exists
+    features["protocol_exists"] = int(
+        re.match(
+            r"^https?://",
+            original_url
+        ) is not None
+    )
 
-        "has_https": int(parsed.scheme.lower() == "https"),
+    # 7. Special characters
+    special_characters = "@-_.,;:#~!$&'()*+/:=?"
 
-        "has_suspicious_word": int(
-            any(word in url.lower() for word in SUSPICIOUS_WORDS)
-        ),
+    features["special_char_count"] = sum(
+        1 for character in url_string
+        if character in special_characters
+    )
 
-        "number_of_subdomains": max(0, hostname.count(".") - 1),
+    # 8. Shannon entropy
+    features["entropy"] = compute_entropy(url_string)
 
-        "path_length": len(parsed.path),
+    # 9. Path depth
+    features["path_depth"] = len(
+        [part for part in path.split("/") if part]
+    )
 
-        "query_length": len(parsed.query),
+    # 10. Domain length
+    features["domain_length"] = len(hostname)
 
-        "has_double_slash": int("//" in parsed.path),
+    # 11. Domain is an IP address
+    features["is_domain_ip"] = int(
+        re.match(
+            r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$",
+            hostname
+        ) is not None
+    )
 
-    }
+    # 12. @ symbol
+    features["has_at_symbol"] = int(
+        "@" in url_string
+    )
+
+    # 13. Double slash redirect
+    features["has_double_slash_redirect"] = int(
+        url_string.count("//") > 1
+    )
+
+    # 14. TLD length
+    try:
+        tld_part = get_tld(
+            url_string,
+            fail_silently=True
+        )
+
+        features["tld_length"] = (
+            len(tld_part)
+            if tld_part
+            else 0
+        )
+    except Exception:
+        features["tld_length"] = 0
+
+    # 15. Query parameter count
+    features["query_param_count"] = (
+        len(parsed.query.split("&"))
+        if parsed.query
+        else 0
+    )
+
+    # 16. Path length
+    features["path_length"] = len(path)
 
     return features
-
-if __name__ == "__main__":
-    test_url = "https://secure-login-example.com/account/verify"
-
-    features = extract_features(test_url)
-
-    for name, value in features.items():
-        print(f"{name}: {value}")
