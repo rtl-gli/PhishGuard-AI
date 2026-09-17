@@ -1,41 +1,90 @@
 import joblib
 import pandas as pd
 
-from features import extract_features
+from features import clean_url, extract_features
 
 
 MODEL_PATH = "model/phishing_model.pkl"
 
 
-# Load the trained model package
-model_data = joblib.load(MODEL_PATH)
+def get_indicators(features):
+    """Identify potentially suspicious URL characteristics."""
 
-model = model_data["model"]
-feature_columns = model_data["features"]
+    indicators = []
+
+    if features["url_length"] > 75:
+        indicators.append("Very long URL")
+
+    if features["hyphen_count"] >= 3:
+        indicators.append("Multiple hyphens")
+
+    if features["digit_count"] >= 5:
+        indicators.append("Large number of digits")
+
+    if features["subdomain_count"] >= 2:
+        indicators.append("Multiple subdomains")
+
+    if features["trusted_tld"] == 0:
+        indicators.append("Uncommon or untrusted TLD")
+
+    if features["is_domain_ip"] == 1:
+        indicators.append("IP address used as domain")
+
+    if features["has_at_symbol"] == 1:
+        indicators.append("@ symbol in URL")
+
+    if features["has_double_slash_redirect"] == 1:
+        indicators.append("Possible URL redirect")
+
+    if features["query_param_count"] >= 4:
+        indicators.append("Many query parameters")
+
+    if features["path_depth"] >= 4:
+        indicators.append("Deep URL path")
+
+    return indicators
 
 
 def predict_url(url):
-    """Predict whether a URL is legitimate or phishing."""
+    """Predict whether a URL is likely legitimate or phishing."""
 
-    features = extract_features(url)
+    cleaned_url = clean_url(url)
 
-    # Ensure features are supplied in the same order used during training
+    model_data = joblib.load(MODEL_PATH)
+
+    model = model_data["model"]
+    feature_columns = model_data["features"]
+
+    features = extract_features(cleaned_url)
+
     data = pd.DataFrame(
         [[features[column] for column in feature_columns]],
         columns=feature_columns,
     )
 
     prediction = model.predict(data)[0]
-    probability = model.predict_proba(data)[0]
 
-    phishing_probability = probability[
+    probabilities = model.predict_proba(data)[0]
+
+    phishing_probability = probabilities[
         list(model.classes_).index(1)
     ]
 
+    if phishing_probability >= 0.75:
+        risk_level = "HIGH"
+    elif phishing_probability >= 0.40:
+        risk_level = "MEDIUM"
+    else:
+        risk_level = "LOW"
+
+    indicators = get_indicators(features)
+
     return {
-        "url": url,
+        "url": cleaned_url,
         "prediction": int(prediction),
         "phishing_probability": float(phishing_probability),
+        "risk_level": risk_level,
+        "indicators": indicators,
         "features": features,
     }
 
@@ -51,10 +100,24 @@ if __name__ == "__main__":
 
     result = predict_url(url)
 
+    print("\nPhishGuard AI")
+    print("────────────────────────────")
     print(f"URL: {result['url']}")
-    print(f"Prediction: {result['prediction']}")
-
+    print(f"Risk level: {result['risk_level']}")
     print(
         f"Phishing probability: "
         f"{result['phishing_probability']:.2%}"
     )
+
+    if result["prediction"] == 1:
+        print("Classification: Potentially phishing")
+    else:
+        print("Classification: Likely legitimate")
+
+    print("\nSecurity indicators:")
+
+    if result["indicators"]:
+        for indicator in result["indicators"]:
+            print(f"• {indicator}")
+    else:
+        print("• No obvious suspicious URL characteristics detected")
