@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PhishGuard AI</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header>
+            <h1>PhishGuard AI</h1>
+
+            <p class="subtitle">
+                Explainable AI phishing URL detection
+            </p>
+        </header>
+
+
+        <section class="scanner">
+
+            <h2>Analyse a URL</h2>
+
+            <p>
+                Enter a URL to estimate whether it exhibits
+                characteristics commonly associated with phishing.
+            </p>
+
+            <div class="input-group">
+
+                <input
+                    type="text"
+                    id="urlInput"
+                    placeholder="https://example.com"
+                    autocomplete="off"
+                >
+
+                <button id="analyseButton">
+                    Analyse URL
+                </button>
+
+            </div>
+
+            <p id="errorMessage" class="error"></p>
+
+        </section>
+
+
+        <section id="results" class="results hidden">
+
+            <div id="riskCard" class="risk-card">
+
+                <p class="risk-label">RISK LEVEL</p>
+
+                <h2 id="riskLevel">LOW</h2>
+
+                <p>
+    Estimated phishing likelihood:
+    <strong id="probability">0%</strong>
+</p>
+
+<div class="risk-bar">
+    <div id="riskProgress" class="risk-progress"></div>
+</div>
+
+            </div>
+
+
+            <div class="result-section">
+
+                <h3>Classification</h3>
+
+                <p id="classification"></p>
+
+            </div>
+
+
+            <div class="result-section">
+
+                <h3>Security Indicators</h3>
+
+                <ul id="indicators"></ul>
+
+            </div>
+
+
+            <div class="result-section">
+
+    <h3>Why did the model make this prediction?</h3>
+
+    <div id="decisions" class="decisions"></div>
+
+</div>
+
+
+<div class="result-section">
+
+    <h3>Technical Analysis</h3>
+
+    <div id="features"></div>
+
+</div>
+
+        </section>
+
+
+        <footer>
+
+            <p>
+                PhishGuard AI provides an estimate based on URL
+                characteristics and does not guarantee that a URL
+                is safe or malicious.
+            </p>
+
+        </footer>
+
+    </main>
+
+
+    <script src="/static/script.js"></script>
+
+</body>
+</html>
