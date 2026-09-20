@@ -397,6 +397,21 @@ starts the FastAPI application on Hugging Face's required port.
 The free CPU Space may sleep when unused, but it does not require Render
 billing details and is suitable for a portfolio demonstration.
 
+### Free GitHub Pages portfolio
+
+This repository also includes a static portfolio site in [`docs/`](./docs).
+It can be published for free with GitHub Pages. In the repository settings,
+open **Pages**, choose **Deploy from a branch**, select `main`, choose the
+`/docs` folder, and save. GitHub will provide an address similar to:
+
+```text
+https://rtl-gli.github.io/PhishGuard-AI/
+```
+
+GitHub Pages can host the portfolio site, project explanation, results, and
+safety FAQ. The full FastAPI detector still needs to be run locally or on a
+Python-capable host because GitHub Pages does not run Python backends.
+
 ---
 
 ## Testing
