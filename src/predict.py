@@ -8,39 +8,37 @@ MODEL_PATH = "model/phishing_model.pkl"
 
 
 def get_indicators(features):
-    """Identify potentially suspicious URL characteristics."""
-
     indicators = []
 
     if features["url_length"] > 75:
-        indicators.append("Very long URL")
+        indicators.append("Unusually long URL")
 
     if features["hyphen_count"] >= 3:
-        indicators.append("Multiple hyphens")
+        indicators.append("Multiple hyphens in URL")
 
     if features["digit_count"] >= 5:
         indicators.append("Large number of digits")
 
-    if features["subdomain_count"] >= 2:
+    if features["subdomain_count"] >= 3:
         indicators.append("Multiple subdomains")
 
-    if features["trusted_tld"] == 0:
-        indicators.append("Uncommon or untrusted TLD")
-
     if features["is_domain_ip"] == 1:
-        indicators.append("IP address used as domain")
+        indicators.append("IP address used instead of a domain name")
 
     if features["has_at_symbol"] == 1:
-        indicators.append("@ symbol in URL")
+        indicators.append("@ symbol present in URL")
 
     if features["has_double_slash_redirect"] == 1:
-        indicators.append("Possible URL redirect")
+        indicators.append("Possible redirect pattern")
 
     if features["query_param_count"] >= 4:
-        indicators.append("Many query parameters")
+        indicators.append("Large number of query parameters")
 
     if features["path_depth"] >= 4:
         indicators.append("Deep URL path")
+
+    if features["entropy"] > 4.5:
+        indicators.append("High URL character randomness")
 
     return indicators
 
@@ -104,10 +102,7 @@ if __name__ == "__main__":
     print("────────────────────────────")
     print(f"URL: {result['url']}")
     print(f"Risk level: {result['risk_level']}")
-    print(
-        f"Phishing probability: "
-        f"{result['phishing_probability']:.2%}"
-    )
+    print(f"Model risk score: {result['phishing_probability']:.2%}")
 
     if result["prediction"] == 1:
         print("Classification: Potentially phishing")
