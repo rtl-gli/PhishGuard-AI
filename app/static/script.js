@@ -17,8 +17,9 @@ const historyList = document.getElementById("historyList");
 const clearHistoryButton = document.getElementById("clearHistoryButton");
 const featureLabels = {
     url_length: "URL length", hyphen_count: "Hyphens", digit_count: "Digits",
-    subdomain_count: "Subdomains", trusted_tld: "Trusted TLD", protocol_exists: "Protocol",
+    subdomain_count: "Subdomains", trusted_tld: "Trusted TLD",
     special_char_count: "Special characters", entropy: "URL entropy", path_depth: "Path depth",
+    protocol_exists: "Connection security",
     domain_length: "Domain length", is_domain_ip: "IP address domain", has_at_symbol: "@ symbol",
     has_double_slash_redirect: "Double-slash redirect", tld_length: "TLD length",
     query_param_count: "Query parameters", path_length: "Path length"
@@ -63,7 +64,7 @@ function displayResults(data) {
     document.querySelector(".risk-icon").textContent = data.prediction === 1 ? "!" : "✓";
     renderIndicators(data.indicators);
     renderDecisions(data.decisions);
-    renderFeatures(data.features);
+    renderFeatures(data.features, data.url);
     results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -98,7 +99,18 @@ function renderDecisions(items) {
     });
 }
 
-function renderFeatures(featureData) {
+function formatFeatureValue(key, value, url) {
+    if (key === "protocol_exists") {
+        return /^https:\/\//i.test(url) ? "HTTPS detected" : "No HTTPS";
+    }
+    if (key === "trusted_tld") return value ? "Recognised" : "Unrecognised";
+    if (key === "is_domain_ip") return value ? "IP address used" : "Domain name used";
+    if (key === "has_at_symbol") return value ? "Present" : "Not present";
+    if (key === "has_double_slash_redirect") return value ? "Possible redirect" : "Not detected";
+    return value;
+}
+
+function renderFeatures(featureData, url) {
     features.innerHTML = "";
     Object.entries(featureData).forEach(([key, value]) => {
         const row = document.createElement("div");
@@ -106,7 +118,7 @@ function renderFeatures(featureData) {
         const label = document.createElement("span");
         label.textContent = featureLabels[key] || key;
         const valueElement = document.createElement("strong");
-        valueElement.textContent = value;
+        valueElement.textContent = formatFeatureValue(key, value, url);
         row.append(label, valueElement);
         features.appendChild(row);
     });
