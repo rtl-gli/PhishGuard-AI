@@ -381,6 +381,22 @@ Render will provide a free HTTPS address similar to:
 https://phishguard-ai.onrender.com
 ```
 
+### Deploying without payment details
+
+If a hosting provider asks for card details, you can use a free Hugging Face
+Space instead. This repository includes a [`Dockerfile`](./Dockerfile) that
+starts the FastAPI application on Hugging Face's required port.
+
+1. Create a free account at [huggingface.co](https://huggingface.co/).
+2. Create a new Space and choose **Docker** as the Space SDK.
+3. Set the Space visibility to **Public**.
+4. Upload or push the repository files, including `Dockerfile`, `app`,
+   `src`, `model`, and `requirements.txt`.
+5. Wait for the Space to build. Hugging Face will provide a public HTTPS URL.
+
+The free CPU Space may sleep when unused, but it does not require Render
+billing details and is suitable for a portfolio demonstration.
+
 ---
 
 ## Testing
