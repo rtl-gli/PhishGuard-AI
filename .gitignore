@@ -5,6 +5,7 @@ __pycache__/
 .env
 .DS_Store
 model/*.pkl
+!model/phishing_model.pkl
 # Dataset
 data/raw/*.csv
 data/raw/*.json

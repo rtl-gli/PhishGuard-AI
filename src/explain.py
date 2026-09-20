@@ -1,10 +1,11 @@
 import joblib
 import pandas as pd
+from pathlib import Path
 
 from src.features import extract_features
 
 
-MODEL_PATH = "model/phishing_model.pkl"
+MODEL_PATH = Path(__file__).resolve().parent.parent / "model" / "phishing_model.pkl"
 
 
 FEATURE_NAMES = {

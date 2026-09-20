@@ -3,126 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>PhishGuard AI</title>
-
+    <meta name="description" content="A clear, explainable AI check for suspicious links.">
+    <title>PhishGuard AI | Safer links, clearer decisions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
+    <div class="page-glow page-glow-one" aria-hidden="true"></div>
+    <div class="page-glow page-glow-two" aria-hidden="true"></div>
 
     <main class="container">
+        <nav class="topbar" aria-label="Main navigation">
+            <a class="brand" href="/" aria-label="PhishGuard AI home">
+                <span class="brand-mark" aria-hidden="true">P</span>
+                <span>PhishGuard <b>AI</b></span>
+            </a>
+            <div class="nav-links"><a class="nav-link active" href="#home">Home</a><a class="nav-link" href="#detector">URL detector</a><a class="nav-chat-link" href="#help">Ask for help</a></div>
+            <span class="status-pill"><span class="status-dot"></span> Explainable security</span>
+        </nav>
 
-        <header>
-            <h1>PhishGuard AI</h1>
-
-            <p class="subtitle">
-                Explainable AI phishing URL detection
-            </p>
-        </header>
-
-
-        <section class="scanner">
-
-            <h2>Analyse a URL</h2>
-
-            <p>
-                Enter a URL to estimate whether it exhibits
-                characteristics commonly associated with phishing.
-            </p>
-
-            <div class="input-group">
-
-                <input
-                    type="text"
-                    id="urlInput"
-                    placeholder="https://example.com"
-                    autocomplete="off"
-                >
-
-                <button id="analyseButton">
-                    Analyse URL
-                </button>
-
+        <section id="home" class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow"><span class="eyebrow-line"></span> A second opinion for your inbox</p>
+                <h1>Pause before you <span>click.</span></h1>
+                <p class="hero-text">Paste a link and get a simple, honest explanation of what looks safe, what looks unusual, and what to do next.</p>
+                <div class="home-actions">
+                    <a class="primary-action" href="#detector">Check a link <span>→</span></a>
+                    <a class="secondary-action" href="#help">Ask the safety assistant <span>✦</span></a>
+                </div>
+                <div class="hero-trust">
+                    <span>●</span> We inspect the link, not the website
+                    <span class="trust-divider"></span>
+                    <span>●</span> No sign-in required
+                </div>
             </div>
-
-            <p id="errorMessage" class="error"></p>
-
+            <div class="hero-orbit" aria-hidden="true">
+                <div class="orbit-ring orbit-ring-outer"></div>
+                <div class="orbit-ring orbit-ring-inner"></div>
+                <div class="shield">✓</div>
+                <span class="orbit-dot dot-one"></span>
+                <span class="orbit-dot dot-two"></span>
+                <span class="orbit-dot dot-three"></span>
+            </div>
         </section>
 
+        <section class="home-section one-page-intro" id="what-we-do">
+            <div class="home-section-heading">
+                <p class="eyebrow">Everything in one place</p>
+                <h2>Simple tools for everyday safety.</h2>
+                <p>Check a link, understand the result, and ask questions without leaving this page.</p>
+            </div>
+            <div class="feature-grid">
+                <a class="feature-card feature-card-featured" href="#detector"><span class="feature-icon">↗</span><p class="feature-number">01 / CHECK</p><h3>URL phishing detector</h3><p>Paste a link and see an estimated risk score, the signals that stood out, and practical next steps.</p><span class="feature-link">Analyse a URL <b>→</b></span></a>
+                <a class="feature-card" href="#help"><span class="feature-icon chat-icon">?</span><p class="feature-number">02 / LEARN</p><h3>Ask the safety assistant</h3><p>Get friendly answers about phishing, suspicious links, and what to do next.</p><span class="feature-link">Ask a question <b>→</b></span></a>
+                <div class="feature-card"><span class="feature-icon explain-icon">≡</span><p class="feature-number">03 / UNDERSTAND</p><h3>Explanations, not just scores</h3><p>See the URL patterns behind a result and build better digital safety instincts.</p><span class="feature-link">Designed for humans <b>✦</b></span></div>
+            </div>
+        </section>
 
-        <section id="results" class="results hidden">
+        <section id="detector" class="scanner-card" aria-labelledby="scanner-title">
+            <div class="section-heading">
+                <div class="step-number">01</div>
+                <div>
+                    <h2 id="scanner-title">Check a link</h2>
+                    <p>Use a URL from a message, email, or social post.</p>
+                </div>
+            </div>
+            <form id="scanForm" class="input-group">
+                <label class="sr-only" for="urlInput">URL to analyse</label>
+                <div class="input-shell">
+                    <span class="input-icon" aria-hidden="true">↗</span>
+                    <input type="url" id="urlInput" placeholder="Paste a link, e.g. https://example.com" autocomplete="off" spellcheck="false">
+                </div>
+                <button id="analyseButton" type="submit"><span>Analyse link</span><span class="button-arrow" aria-hidden="true">→</span></button>
+            </form>
+            <p id="errorMessage" class="error" role="alert"></p>
+            <div class="scanner-tip"><span aria-hidden="true">💡</span> Tip: never enter passwords or personal information here.</div>
+        </section>
+
+        <section id="results" class="results hidden" aria-live="polite">
+            <div class="result-topline">
+                <div>
+                    <p class="eyebrow">Scan complete</p>
+                    <h2>Here’s what we found</h2>
+                </div>
+                <button id="newScanButton" class="text-button" type="button">↻ New scan</button>
+            </div>
 
             <div id="riskCard" class="risk-card">
-
-                <p class="risk-label">RISK LEVEL</p>
-
-                <h2 id="riskLevel">LOW</h2>
-
-                <p>
-     Model risk score:
-    <strong id="probability">0%</strong>
-</p>
-
-<div class="risk-bar">
-    <div id="riskProgress" class="risk-progress"></div>
-</div>
-
+                <div class="risk-summary">
+                    <div class="risk-icon" aria-hidden="true">✓</div>
+                    <div>
+                        <p class="risk-label">Risk level</p>
+                        <h3 id="riskLevel">LOW</h3>
+                        <p id="classification" class="classification"></p>
+                    </div>
+                </div>
+                <div class="risk-score">
+                    <div class="score-heading"><span>Estimated phishing likelihood</span><strong id="probability">0%</strong></div>
+                    <div class="risk-bar" role="progressbar" aria-label="Estimated phishing likelihood" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="riskProgress" class="risk-progress"></div></div>
+                    <p class="score-note">This is an estimate based on URL patterns, not a guarantee.</p>
+                </div>
             </div>
 
-
-            <div class="result-section">
-
-                <h3>Classification</h3>
-
-                <p id="classification"></p>
-
+            <div class="result-grid">
+                <section class="result-section indicators-section">
+                    <div class="section-title"><span class="title-icon warning-icon">!</span><div><h3>What stood out</h3><p>Signals the model noticed in this link.</p></div></div>
+                    <ul id="indicators"></ul>
+                </section>
+                <section class="result-section next-steps">
+                    <div class="section-title"><span class="title-icon action-icon">→</span><div><h3>What to do next</h3><p>Simple steps to stay safe.</p></div></div>
+                    <ul>
+                        <li>Don’t enter passwords or payment details.</li>
+                        <li>Check with the sender using a trusted channel.</li>
+                        <li>When unsure, close the tab and report the message.</li>
+                    </ul>
+                </section>
             </div>
 
-
-            <div class="result-section">
-
-                <h3>Security Indicators</h3>
-
-                <ul id="indicators"></ul>
-
-            </div>
-
-
-            <div class="result-section">
-
-    <h3>Why did the model make this prediction?</h3>
-
-    <div id="decisions" class="decisions"></div>
-
-</div>
-
-
-<div class="result-section">
-
-    <h3>Technical Analysis</h3>
-
-    <div id="features"></div>
-
-</div>
-
+            <details class="technical-details">
+                <summary><span><span class="title-icon chart-icon">⌁</span> See the technical explanation</span><span class="summary-chevron">⌄</span></summary>
+                <div class="technical-content">
+                    <div class="explanation-block"><h3>Why did the model decide this?</h3><div id="decisions" class="decisions"></div></div>
+                    <div class="explanation-block"><h3>URL features</h3><div id="features" class="features"></div></div>
+                </div>
+            </details>
         </section>
 
+        <section id="historySection" class="history hidden" aria-labelledby="history-title">
+            <div class="section-title"><span class="title-icon history-icon">◷</span><div><h2 id="history-title">Recent checks</h2><p>Saved only on this device.</p></div><button id="clearHistoryButton" class="text-button" type="button">Clear</button></div>
+            <div id="historyList"></div>
+        </section>
 
-        <footer>
+        <section class="how-it-works">
+            <div><p class="eyebrow">Built for understanding</p><h2>Security should feel human.</h2></div>
+            <div class="how-steps">
+                <div><span>01</span><h3>Paste</h3><p>Share a link without opening it.</p></div>
+                <div><span>02</span><h3>Understand</h3><p>See the signals behind the score.</p></div>
+                <div><span>03</span><h3>Decide</h3><p>Choose your next step with confidence.</p></div>
+            </div>
+        </section>
 
-            <p>
-                PhishGuard AI provides an estimate based on URL
-                characteristics and does not guarantee that a URL
-                is safe or malicious.
-            </p>
-
-        </footer>
-
+        <footer><p><strong>PhishGuard AI</strong> is an educational tool and cannot guarantee that a link is safe. When in doubt, don’t click.</p><span>Made to make the internet a little clearer.</span></footer>
     </main>
-
-
     <script src="/static/script.js"></script>
-
+    <div id="help" class="chat-widget" aria-label="PhishGuard help assistant">
+        <button id="chatToggle" class="chat-toggle" type="button" aria-expanded="false"><span class="chat-toggle-icon">✦</span><span>Ask PhishGuard</span></button>
+        <section id="chatPanel" class="chat-panel hidden" aria-label="Help assistant">
+            <div class="chat-header"><div><strong>PhishGuard assistant</strong><p>Quick answers for safer browsing</p></div><button id="chatClose" type="button" aria-label="Close assistant">×</button></div>
+            <div id="chatMessages" class="chat-messages" aria-live="polite"><div class="chat-message assistant">Hi! I can explain phishing, help you understand a scan, or suggest what to do if you clicked something suspicious.</div><div class="quick-questions"><button type="button" data-question="What is phishing?">What is phishing?</button><button type="button" data-question="What should I do if I clicked a suspicious link?">I clicked a link</button><button type="button" data-question="How accurate is the detector?">How accurate is it?</button></div></div>
+            <form id="chatForm" class="chat-form"><label class="sr-only" for="chatInput">Ask a question</label><input id="chatInput" type="text" placeholder="Ask a question…" autocomplete="off"><button type="submit" aria-label="Send question">→</button></form>
+            <p class="chat-disclaimer">For education only — never share passwords or private details.</p>
+        </section>
+    </div>
+    <script src="/static/chat.js"></script>
 </body>
 </html>

@@ -361,6 +361,26 @@ FastAPI's interactive API documentation is available at:
 http://127.0.0.1:8000/docs
 ```
 
+### Deploying a free public version
+
+The repository includes a [`render.yaml`](./render.yaml) blueprint for
+deploying the application on Render's free web service. The trained model
+artifact is included in `model/phishing_model.pkl`; the raw training dataset
+remains excluded from Git because it is not needed at runtime.
+
+To deploy:
+
+1. Sign in to Render with GitHub.
+2. Choose **New +** and **Blueprint**.
+3. Select this repository and the branch containing `render.yaml`.
+4. Confirm the service creation.
+
+Render will provide a free HTTPS address similar to:
+
+```text
+https://phishguard-ai.onrender.com
+```
+
 ---
 
 ## Testing

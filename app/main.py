@@ -30,12 +30,19 @@ class URLRequest(BaseModel):
     url: str
 
 
+def render_template(filename: str):
+    html_file = BASE_DIR / "templates" / filename
+    return html_file.read_text(encoding="utf-8")
+
+
 @app.get("/", response_class=HTMLResponse)
 def root():
+    return render_template("index.html")
 
-    html_file = BASE_DIR / "templates" / "index.html"
 
-    return html_file.read_text(encoding="utf-8")
+@app.get("/detector", response_class=HTMLResponse)
+def detector():
+    return render_template("index.html")
 
 
 @app.post("/api/analyze")
