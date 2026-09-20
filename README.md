@@ -128,6 +128,48 @@ The unrestricted tree also showed a larger difference between training and test 
 
 The final Decision Tree was evaluated on **3,989 test samples**.
 
+pytest
+=================== test session starts ====================
+platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\rithg\Documents\PhishGuard AI
+plugins: anyio-4.15.1
+collected 10 items                                          
+
+tests\test_api.py ..                                  [ 20%]
+tests\test_features.py ........                       [100%]
+
+===================== warnings summary =====================
+.venv\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\rithg\Documents\PhishGuard AI\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============== 10 passed, 1 warning in 2.28s ===============
+(.venv) PS C:\Users\rithg\Documents\PhishGuard AI> git add requirements.txt tests/test_api.py
+>> git commit -m "Add API endpoint tests"
+>> git push
+[main afbaec7] Add API endpoint tests
+ 2 files changed, 33 insertions(+)
+ create mode 100644 tests/test_api.py
+Enumerating objects: 8, done.
+Counting objects: 100% (8/8), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 681 bytes | 681.00 KiB/s, done.
+Total 5 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 localobjects.
+To https://github.com/rtl-gli/PhishGuard-AI.git
+   353fb7a..afbaec7  main -> main
+(.venv) PS C:\Users\rithg\Documents\PhishGuard AI> 
+
+
+### Feature-Importance Visualisations
+
+The project also generates:
+
+- `feature_importance.png` — impurity-based Decision Tree importance
+- `permutation_importance.png` — permutation importance measured using F1 score
+
 ### Results
 
 - **Accuracy:** 85.11%
