@@ -214,17 +214,25 @@ This is useful for understanding **why the model reached a particular prediction
 
 ## Web Application
 
-PhishGuard AI includes a FastAPI web application.
+PhishGuard AI includes a FastAPI web application with a welcoming home page,
+a dedicated URL detector, and a privacy-friendly in-browser safety assistant.
+
+Open `/` for the home page or `/detector` to go directly to the URL checker.
 
 The interface allows a user to:
 
-1. Enter a URL
-2. Analyse the URL
-3. View the estimated phishing likelihood
-4. View the risk level
-5. See suspicious URL indicators
-6. Inspect the model's decision path
-7. Inspect the extracted technical features
+1. Paste a URL without opening it in the [URL detector](http://127.0.0.1:8000/detector)
+2. View a calm, plain-language risk summary
+3. See the estimated phishing likelihood and classification
+4. Understand which URL signals stood out
+5. Follow practical next steps for staying safe
+6. Expand the technical explanation when more detail is useful
+7. Review recent scans saved locally in the browser
+8. Ask the built-in safety assistant common phishing questions
+
+The interface is responsive and designed for non-technical users first. It does
+not ask for an account, passwords, or personal information. Recent scan history
+is stored only in the browser's local storage and is not sent to the API.
 
 ### API
 
