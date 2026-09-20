@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="PhishGuard AI is an explainable machine-learning phishing URL detection project.">
-    <title>PhishGuard AI | Explainable phishing detection</title>
+    <meta name="description" content="A student-built phishing URL detection project by PhishGuard AI.">
+    <title>PhishGuard AI | A phishing detection project</title>
     <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./overrides.css">
 </head>
 <body>
     <header class="site-header">
@@ -21,14 +22,14 @@
     <main>
         <section class="hero">
             <div class="hero-copy">
-                <p class="eyebrow">An AI cybersecurity project</p>
+                <p class="eyebrow">A student cybersecurity project</p>
                 <h1>Pause before<br>you <em>click.</em></h1>
-                <p class="hero-lede">PhishGuard AI helps people understand suspicious links before opening them. It combines machine learning with plain-language explanations so safer decisions feel simple.</p>
+                <p class="hero-lede">I built PhishGuard AI to explore whether a small, explainable machine-learning model could help people think twice about suspicious links.</p>
                 <div class="actions">
-                    <a class="button primary" href="#project">Explore the project <span>↓</span></a>
-                    <a class="button quiet" href="https://github.com/rtl-gli/PhishGuard-AI">Read the source code ↗</a>
+                    <a class="button primary" href="#project">See what I built <span>↓</span></a>
+                    <a class="button quiet" href="https://github.com/rtl-gli/PhishGuard-AI">Browse the code ↗</a>
                 </div>
-                <p class="trust-line"><span>●</span> Free educational project <span>●</span> Explainable by design <span>●</span> Built for everyone</p>
+                <p class="trust-line"><span>●</span> Free project <span>●</span> Built in Python <span>●</span> Open source</p>
             </div>
             <div class="hero-card" aria-label="Example phishing risk result">
                 <div class="card-top"><span class="mini-mark">P</span><span>PhishGuard scan</span><span class="dots">•••</span></div>
@@ -40,28 +41,33 @@
         </section>
 
         <section id="project" class="section">
-            <div class="section-intro"><p class="eyebrow">What it does</p><h2>A practical project with a human purpose.</h2><p>Phishing affects people every day. This project explores how an explainable machine-learning model can turn technical URL signals into guidance that anyone can understand.</p></div>
+            <div class="section-intro"><p class="eyebrow">The idea</p><h2>A practical project with a real problem behind it.</h2><p>Phishing affects people every day. I wanted to make something more useful than a notebook: a small web tool that shows its reasoning and gives someone a sensible next step.</p></div>
             <div class="feature-grid">
-                <article class="feature"><span class="feature-number">01</span><h3>Analyse a URL</h3><p>Extracts 16 characteristics from a link, including length, domain structure, HTTPS, redirects, and suspicious symbols.</p></article>
-                <article class="feature"><span class="feature-number">02</span><h3>Explain the result</h3><p>Shows the decision path behind the prediction instead of presenting an unexplained black-box score.</p></article>
-                <article class="feature"><span class="feature-number">03</span><h3>Help people act</h3><p>Gives calm, practical next steps and safety guidance without asking for passwords or personal information.</p></article>
+                <article class="feature"><span class="feature-number">01</span><h3>Look at the link</h3><p>The model checks 16 details, including length, domain structure, HTTPS, redirects, and unusual symbols.</p></article>
+                <article class="feature"><span class="feature-number">02</span><h3>Show the reasoning</h3><p>The result includes the decision path, so the score is not just a mysterious number.</p></article>
+                <article class="feature"><span class="feature-number">03</span><h3>Keep it useful</h3><p>The interface gives practical advice and never asks for passwords or personal information.</p></article>
             </div>
         </section>
 
         <section id="how-it-works" class="section split-section">
-            <div><p class="eyebrow">How it works</p><h2>From link to clearer decision.</h2></div>
+            <div><p class="eyebrow">Under the hood</p><h2>From link to a clearer decision.</h2></div>
             <div class="steps"><div><span>01</span><h3>Feature extraction</h3><p>The URL is inspected without opening the website.</p></div><div><span>02</span><h3>Decision tree model</h3><p>A trained classifier estimates the likelihood of phishing.</p></div><div><span>03</span><h3>Plain-language output</h3><p>Signals, risk level, and next steps are shown together.</p></div></div>
         </section>
 
         <section id="results" class="section results-section">
-            <div class="section-intro"><p class="eyebrow">Model evaluation</p><h2>Measured, not just promised.</h2><p>The deployed decision tree was selected after comparing models and testing different tree depths on a balanced dataset.</p></div>
+            <div class="section-intro"><p class="eyebrow">What I measured</p><h2>Numbers matter, but context matters too.</h2><p>I compared a baseline logistic regression model with decision trees and tested different tree depths. The final model was chosen from those experiments, not picked at random.</p></div>
             <div class="metrics"><div><strong>85.11%</strong><span>Test accuracy</span></div><div><strong>84.49%</strong><span>Phishing F1 score</span></div><div><strong>81.14%</strong><span>Phishing recall</span></div><div><strong>16</strong><span>URL features</span></div></div>
             <p class="disclaimer">PhishGuard AI is an educational estimate, not a guarantee. A low-risk result does not mean a link is definitely safe.</p>
         </section>
 
+        <section class="section reflection-section">
+            <div class="section-intro"><p class="eyebrow">What I learned</p><h2>The difficult part is not only the model.</h2><p>Building this made me think about false negatives, readable explanations, and how to design for someone who may already be worried. A prediction is only useful if a person can understand what to do with it.</p></div>
+            <div class="reflection-note"><strong>Current limitation</strong><p>This is a URL-pattern detector, not a guarantee of safety. It does not visit a website or replace advice from your bank, email provider, or security team.</p></div>
+        </section>
+
         <section class="section next-section">
-            <div><p class="eyebrow">Try the application</p><h2>Run the full detector locally.</h2><p>The interactive FastAPI web application is included in the repository. Follow the setup instructions to run the URL scanner and safety assistant on your own computer.</p></div>
-            <a class="button primary" href="https://github.com/rtl-gli/PhishGuard-AI#running-the-web-application">View setup instructions ↗</a>
+            <div><p class="eyebrow">Want to see more?</p><h2>Run the full detector locally.</h2><p>The interactive FastAPI application is in the repository, along with the tests, model code, and setup instructions.</p></div>
+            <a class="button primary" href="https://github.com/rtl-gli/PhishGuard-AI#running-the-web-application">Open the setup guide ↗</a>
         </section>
     </main>
 

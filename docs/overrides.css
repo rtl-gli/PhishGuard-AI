@@ -1,0 +1,29 @@
+.reflection-section {
+    align-items: start;
+    display: grid;
+    gap: 90px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.reflection-note {
+    background: #102137;
+    border-left: 2px solid var(--cyan);
+    margin-top: 30px;
+    padding: 22px;
+}
+
+.reflection-note strong {
+    font-size: 15px;
+}
+
+.reflection-note p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 9px 0 0;
+}
+
+@media (max-width: 720px) {
+    .reflection-section {
+        grid-template-columns: 1fr;
+    }
+}
