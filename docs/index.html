@@ -3,81 +3,373 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A student-built phishing URL detection project by PhishGuard AI.">
+    <meta name="description" content="A student-built phishing URL detection project using explainable machine learning.">
     <title>PhishGuard AI | A phishing detection project</title>
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./overrides.css">
 </head>
+
 <body>
     <header class="site-header">
-        <a class="brand" href="./"><span class="brand-mark">P</span> PhishGuard <strong>AI</strong></a>
+        <a class="brand" href="./">
+            <span class="brand-mark">P</span> PhishGuard <strong>AI</strong>
+        </a>
+
         <nav aria-label="Main navigation">
             <a href="#project">Project</a>
             <a href="#how-it-works">How it works</a>
             <a href="#results">Results</a>
-            <a class="nav-button" href="https://github.com/rtl-gli/PhishGuard-AI">View on GitHub ↗</a>
+            <a class="nav-button"
+               href="https://github.com/rtl-gli/PhishGuard-AI"
+               target="_blank"
+               rel="noopener noreferrer">
+                View on GitHub ↗
+            </a>
         </nav>
     </header>
 
     <main>
+
+        <!-- HERO -->
         <section class="hero">
             <div class="hero-copy">
                 <p class="eyebrow">A student cybersecurity project</p>
-                <h1>Pause before<br>you <em>click.</em></h1>
-                <p class="hero-lede">I built PhishGuard AI to explore whether a small, explainable machine-learning model could help people think twice about suspicious links.</p>
+
+                <h1>
+                    Pause before<br>
+                    you <em>click.</em>
+                </h1>
+
+                <p class="hero-lede">
+                    I built PhishGuard AI to explore whether a small,
+                    explainable machine-learning model could help people
+                    think twice about suspicious links.
+                </p>
+
                 <div class="actions">
-                    <a class="button primary" href="#project">See what I built <span>↓</span></a>
-                    <a class="button quiet" href="https://github.com/rtl-gli/PhishGuard-AI">Browse the code ↗</a>
+                    <a class="button primary"
+                       href="https://phishguard-ai.fastapicloud.dev"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        Try PhishGuard AI ↗
+                    </a>
+
+                    <a class="button quiet" href="#project">
+                        See what I built ↓
+                    </a>
                 </div>
-                <p class="trust-line"><span>●</span> Free project <span>●</span> Built in Python <span>●</span> Open source</p>
+
+                <p class="trust-line">
+                    <span>●</span> Free project
+                    <span>●</span> Built in Python
+                    <span>●</span> Open source
+                </p>
             </div>
+
             <div class="hero-card" aria-label="Example phishing risk result">
-                <div class="card-top"><span class="mini-mark">P</span><span>PhishGuard scan</span><span class="dots">•••</span></div>
-                <p class="card-label">Estimated phishing likelihood</p>
-                <div class="score-row"><strong>12%</strong><span class="safe-pill">LOW RISK</span></div>
-                <div class="progress"><span></span></div>
-                <div class="card-foot"><span>✓ HTTPS detected</span><span>✓ Domain name used</span></div>
+                <div class="card-top">
+                    <span class="mini-mark">P</span>
+                    <span>PhishGuard scan</span>
+                    <span class="dots">•••</span>
+                </div>
+
+                <p class="card-label">Model risk score</p>
+
+                <div class="score-row">
+                    <strong>12%</strong>
+                    <span class="safe-pill">LOW RISK</span>
+                </div>
+
+                <div class="progress">
+                    <span></span>
+                </div>
+
+                <div class="card-foot">
+                    <span>✓ HTTPS detected</span>
+                    <span>✓ Domain name used</span>
+                </div>
             </div>
         </section>
 
+
+        <!-- PROJECT -->
         <section id="project" class="section">
-            <div class="section-intro"><p class="eyebrow">The idea</p><h2>A practical project with a real problem behind it.</h2><p>Phishing affects people every day. I wanted to make something more useful than a notebook: a small web tool that shows its reasoning and gives someone a sensible next step.</p></div>
+            <div class="section-intro">
+                <p class="eyebrow">The idea</p>
+
+                <h2>
+                    A practical project with a real problem behind it.
+                </h2>
+
+                <p>
+                    Phishing affects people every day. I wanted to make
+                    something more useful than a notebook: a small web tool
+                    that analyses suspicious URLs, explains its reasoning,
+                    and gives someone a sensible next step.
+                </p>
+            </div>
+
             <div class="feature-grid">
-                <article class="feature"><span class="feature-number">01</span><h3>Look at the link</h3><p>The model checks 16 details, including length, domain structure, HTTPS, redirects, and unusual symbols.</p></article>
-                <article class="feature"><span class="feature-number">02</span><h3>Show the reasoning</h3><p>The result includes the decision path, so the score is not just a mysterious number.</p></article>
-                <article class="feature"><span class="feature-number">03</span><h3>Keep it useful</h3><p>The interface gives practical advice and never asks for passwords or personal information.</p></article>
+                <article class="feature">
+                    <span class="feature-number">01</span>
+                    <h3>Look at the link</h3>
+                    <p>
+                        The model checks 16 URL features, including length,
+                        domain structure, HTTPS, redirects, entropy,
+                        and unusual characters.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <span class="feature-number">02</span>
+                    <h3>Show the reasoning</h3>
+                    <p>
+                        The application exposes technical signals and the
+                        decision path so the result is not just a mysterious
+                        number.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <span class="feature-number">03</span>
+                    <h3>Keep it useful</h3>
+                    <p>
+                        The interface translates technical values into
+                        plain language and provides practical safety advice.
+                    </p>
+                </article>
             </div>
         </section>
 
+
+        <!-- HOW IT WORKS -->
         <section id="how-it-works" class="section split-section">
-            <div><p class="eyebrow">Under the hood</p><h2>From link to a clearer decision.</h2></div>
-            <div class="steps"><div><span>01</span><h3>Feature extraction</h3><p>The URL is inspected without opening the website.</p></div><div><span>02</span><h3>Decision tree model</h3><p>A trained classifier estimates the likelihood of phishing.</p></div><div><span>03</span><h3>Plain-language output</h3><p>Signals, risk level, and next steps are shown together.</p></div></div>
+            <div>
+                <p class="eyebrow">Under the hood</p>
+
+                <h2>
+                    From link to a clearer decision.
+                </h2>
+            </div>
+
+            <div class="steps">
+
+                <div>
+                    <span>01</span>
+                    <h3>Feature extraction</h3>
+                    <p>
+                        The URL is inspected without opening the website.
+                        Sixteen numerical features are extracted.
+                    </p>
+                </div>
+
+                <div>
+                    <span>02</span>
+                    <h3>Decision tree model</h3>
+                    <p>
+                        A trained Decision Tree classifier analyses the
+                        extracted features and produces a model risk score.
+                    </p>
+                </div>
+
+                <div>
+                    <span>03</span>
+                    <h3>Plain-language output</h3>
+                    <p>
+                        Risk level, technical signals, decision-path
+                        information, and practical guidance are shown
+                        together.
+                    </p>
+                </div>
+
+            </div>
         </section>
 
+
+        <!-- RESULTS -->
         <section id="results" class="section results-section">
-            <div class="section-intro"><p class="eyebrow">What I measured</p><h2>Numbers matter, but context matters too.</h2><p>I compared a baseline logistic regression model with decision trees and tested different tree depths. The final model was chosen from those experiments, not picked at random.</p></div>
-            <div class="metrics"><div><strong>85.11%</strong><span>Test accuracy</span></div><div><strong>84.49%</strong><span>Phishing F1 score</span></div><div><strong>81.14%</strong><span>Phishing recall</span></div><div><strong>16</strong><span>URL features</span></div></div>
-            <p class="disclaimer">PhishGuard AI is an educational estimate, not a guarantee. A low-risk result does not mean a link is definitely safe.</p>
+            <div class="section-intro">
+                <p class="eyebrow">What I measured</p>
+
+                <h2>
+                    Numbers matter, but context matters too.
+                </h2>
+
+                <p>
+                    I compared a baseline logistic regression model with
+                    decision trees and tested different tree depths. The
+                    final model was selected from those experiments rather
+                    than picked at random.
+                </p>
+            </div>
+
+            <div class="metrics">
+                <div>
+                    <strong>85.11%</strong>
+                    <span>Test accuracy</span>
+                </div>
+
+                <div>
+                    <strong>84.49%</strong>
+                    <span>Phishing F1 score</span>
+                </div>
+
+                <div>
+                    <strong>81.14%</strong>
+                    <span>Phishing recall</span>
+                </div>
+
+                <div>
+                    <strong>16</strong>
+                    <span>URL features</span>
+                </div>
+            </div>
+
+            <p class="disclaimer">
+                PhishGuard AI is an educational estimate, not a guarantee.
+                A low-risk result does not mean a link is definitely safe.
+            </p>
         </section>
 
+
+        <!-- REFLECTION -->
         <section class="section reflection-section">
-            <div class="section-intro"><p class="eyebrow">What I learned</p><h2>The difficult part is not only the model.</h2><p>Building this made me think about false negatives, readable explanations, and how to design for someone who may already be worried. A prediction is only useful if a person can understand what to do with it.</p></div>
-            <div class="reflection-note"><strong>Current limitation</strong><p>This is a URL-pattern detector, not a guarantee of safety. It does not visit a website or replace advice from your bank, email provider, or security team.</p></div>
+            <div class="section-intro">
+                <p class="eyebrow">What I learned</p>
+
+                <h2>
+                    The difficult part is not only the model.
+                </h2>
+
+                <p>
+                    Building this made me think about false negatives,
+                    readable explanations, testing, deployment, and how to
+                    design for someone who may already be worried.
+                    A prediction is only useful if a person can understand
+                    what to do with it.
+                </p>
+            </div>
+
+            <div class="reflection-note">
+                <strong>Current limitation</strong>
+
+                <p>
+                    This is a URL-pattern detector, not a guarantee of safety.
+                    It does not visit a website or replace advice from your
+                    bank, email provider, or security team.
+                </p>
+            </div>
         </section>
 
+
+        <!-- LIVE APPLICATION -->
         <section class="section next-section">
-            <div><p class="eyebrow">Want to see more?</p><h2>Run the full detector locally.</h2><p>The interactive FastAPI application is in the repository, along with the tests, model code, and setup instructions.</p></div>
-            <a class="button primary" href="https://github.com/rtl-gli/PhishGuard-AI#running-the-web-application">Open the setup guide ↗</a>
+            <div>
+                <p class="eyebrow">Try the project</p>
+
+                <h2>
+                    Test PhishGuard AI yourself.
+                </h2>
+
+                <p>
+                    The live FastAPI application lets you submit a URL,
+                    view the model's risk assessment, inspect the technical
+                    analysis, and explore practical safety guidance.
+                </p>
+            </div>
+
+            <div class="actions">
+                <a class="button primary"
+                   href="https://phishguard-ai.fastapicloud.dev"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Open live detector ↗
+                </a>
+
+                <a class="button quiet"
+                   href="https://github.com/rtl-gli/PhishGuard-AI#running-the-web-application"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    View setup guide ↗
+                </a>
+            </div>
         </section>
+
     </main>
 
-    <footer><span><strong>PhishGuard AI</strong> · A student cybersecurity project</span><span>Open source on GitHub · Free to explore</span></footer>
-    <button id="helpButton" class="help-button" type="button" aria-expanded="false">✦ Safety FAQ</button>
-    <aside id="helpPanel" class="help-panel" hidden>
-        <div class="help-heading"><strong>Safety FAQ</strong><button id="closeHelp" type="button" aria-label="Close safety FAQ">×</button></div>
-        <p id="helpAnswer">Choose a question for a quick, plain-language answer.</p>
-        <div class="faq-buttons"><button data-answer="Phishing is a scam that uses a convincing message or website to trick you into sharing information, sending money, or installing something harmful.">What is phishing?</button><button data-answer="Do not enter any information. Close the page, change your password from the real website if you entered it, contact your bank if needed, and report the message.">I clicked a suspicious link</button><button data-answer="The detector is a second opinion based on URL patterns. It does not visit the website and cannot guarantee that a link is safe.">How accurate is it?</button></div>
+
+    <!-- FOOTER -->
+    <footer>
+        <span>
+            <strong>PhishGuard AI</strong> · A student cybersecurity project
+        </span>
+
+        <span>
+            <a href="https://github.com/rtl-gli/PhishGuard-AI"
+               target="_blank"
+               rel="noopener noreferrer">
+                Open source on GitHub
+            </a>
+            ·
+            <a href="https://phishguard-ai.fastapicloud.dev"
+               target="_blank"
+               rel="noopener noreferrer">
+                Live application
+            </a>
+        </span>
+    </footer>
+
+
+    <!-- SAFETY FAQ -->
+    <button
+        id="helpButton"
+        class="help-button"
+        type="button"
+        aria-expanded="false">
+        ✦ Safety FAQ
+    </button>
+
+    <aside
+        id="helpPanel"
+        class="help-panel"
+        hidden>
+
+        <div class="help-heading">
+            <strong>Safety FAQ</strong>
+
+            <button
+                id="closeHelp"
+                type="button"
+                aria-label="Close safety FAQ">
+                ×
+            </button>
+        </div>
+
+        <p id="helpAnswer">
+            Choose a question for a quick, plain-language answer.
+        </p>
+
+        <div class="faq-buttons">
+
+            <button
+                data-answer="Phishing is a scam that uses a convincing message or website to trick you into sharing information, sending money, or installing something harmful.">
+                What is phishing?
+            </button>
+
+            <button
+                data-answer="Do not enter any information. Close the page, change your password from the real website if you entered it, contact your bank if needed, and report the message.">
+                I clicked a suspicious link
+            </button>
+
+            <button
+                data-answer="The detector is a second opinion based on URL patterns. It does not visit the website and cannot guarantee that a link is safe.">
+                How accurate is it?
+            </button>
+
+        </div>
     </aside>
+
+
     <script src="./script.js"></script>
 </body>
 </html>
