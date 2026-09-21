@@ -1,79 +1,68 @@
 # PhishGuard AI
 
-**Explainable AI phishing URL detection**
+**An explainable phishing URL detection project**
 
-PhishGuard AI is a project that leverages machine learning for cybersecurity by checking URLs to see if they have the characteristics of phishing.
+PhishGuard AI is a personal cybersecurity and machine-learning project. It
+checks the structure of a URL for patterns commonly associated with phishing
+and returns a risk estimate with reasons that a non-technical user can
+understand.
 
- It encompasses the use of **feature engineering, machine learning, model evaluation, explainable prediction, automated testing, and FastAPI web applications.**
+The project brings together feature engineering, model comparison, explainable
+prediction, automated testing, a FastAPI web application, and a static GitHub
+Pages portfolio.
 
-> **Important:** PhishGuard AI provides an estimate of the probability based on the features of the URL rather than providing a guarantee of safety or maliciousness.
+> **Important:** This is an educational estimate. It does not guarantee that a
+> URL is safe or malicious and should not replace advice from a bank, security
+> team, or established security product.
 
----
+## What it can do
 
-## Features
+- Analyse URLs without opening the destination website
+- Classify a URL as LOW, MEDIUM, or HIGH risk
+- Return an estimated phishing likelihood
+- Highlight suspicious URL characteristics
+- Show the Decision Tree path behind the result
+- Display technical URL features using clearer labels
+- Provide practical next steps for non-technical users
+- Offer a local, in-browser safety assistant
+- Store recent scans only in the browser's local storage
+- Publish a project portfolio through GitHub Pages
 
-- Analyse URLs for phishing characteristics
-- Machine-learning classification using a Decision Tree
-- Logistic Regression used as a baseline model
-- Explainable predictions using the Decision Tree's decision path
-- Risk classification: LOW, MEDIUM or HIGH
-- Security indicators highlighting suspicious URL characteristics
-- Technical analysis of extracted URL features
-- FastAPI backend with a browser-based interface
-- Automated feature-extraction tests using pytest
-- Reproducible model evaluation
-
----
-
-## How It Works
-
-PhishGuard AI follows this pipeline:
+## How it works
 
 ```text
 URL
  │
  ▼
-Feature Extraction
+Feature extraction
  │
  ▼
-16 Numerical URL Features
+16 URL features
  │
  ▼
-Machine Learning Model
+Decision Tree model
  │
  ▼
-Phishing Classification
- │
- ├── Risk Level
- ├── Estimated Phishing Likelihood
- ├── Security Indicators
- └── Explainable Decision Path
+Risk level, indicators, and explanation
 ```
 
-The system does not need to download or interact with the webpage itself. Instead, it analyses characteristics contained within the URL.
+The system does not download or interact with the webpage. It analyses
+characteristics contained in the URL itself.
 
----
+## Machine learning
 
-## Machine Learning
+The model was trained using the PhishTrap URL dataset:
 
-### Dataset
+- 19,944 URLs
+- 9,972 legitimate URLs
+- 9,972 phishing URLs
+- 16 URL-based features
 
-The model was trained using the **PhishTrap** URL dataset.
-
-The dataset contains:
-
-- **19,944 URLs**
-- **9,972 legitimate URLs**
-- **9,972 phishing URLs**
-- **16 URL-based features**
-
-The dataset is balanced between the two classes.
-
-The raw dataset is intentionally excluded from the Git repository using `.gitignore`.
+The raw dataset is excluded from Git. The small trained model artifact is
+included because it is needed to run the application; it does not contain the
+raw URLs.
 
 ### Features
-
-PhishGuard extracts the following features:
 
 | Feature | Description |
 |---|---|
@@ -82,7 +71,7 @@ PhishGuard extracts the following features:
 | `digit_count` | Number of digits |
 | `subdomain_count` | Number of subdomains |
 | `trusted_tld` | Whether the TLD belongs to a selected trusted set |
-| `protocol_exists` | Whether HTTP/HTTPS is present |
+| `protocol_exists` | Whether HTTP or HTTPS is present |
 | `special_char_count` | Number of selected special characters |
 | `entropy` | Shannon entropy of the URL |
 | `path_depth` | Number of path levels |
@@ -94,23 +83,12 @@ PhishGuard extracts the following features:
 | `query_param_count` | Number of query parameters |
 | `path_length` | Length of the URL path |
 
----
+### Model selection
 
-## Model Selection
+Logistic Regression was used as a baseline with 82.88% test accuracy. Several
+Decision Tree depths were then compared using the same train/test split.
 
-Two machine-learning approaches were compared using the same train/test split.
-
-### Logistic Regression
-
-The Logistic Regression model was used as a baseline.
-
-**Test accuracy: 82.88%**
-
-### Decision Tree
-
-The Decision Tree was tested at multiple maximum depths:
-
-| Max Depth | Test Accuracy | Phishing Recall | Phishing F1 | False Negatives |
+| Max depth | Test accuracy | Phishing recall | Phishing F1 | False negatives |
 |---:|---:|---:|---:|---:|
 | 3 | 80.32% | 69.66% | 77.97% | 605 |
 | 5 | 83.35% | 78.13% | 82.43% | 436 |
@@ -118,117 +96,25 @@ The Decision Tree was tested at multiple maximum depths:
 | 12 | 84.26% | 79.24% | 83.42% | 414 |
 | Unlimited | 82.88% | 76.78% | 81.76% | 463 |
 
-A maximum depth of **8** was selected for the deployed Decision Tree based on the evaluation performed during development.
+The deployed model uses a maximum depth of 8. The final evaluation used 3,989
+test samples:
 
-The unrestricted tree also showed a larger difference between training and test performance, providing evidence of overfitting.
+- Accuracy: 85.11%
+- Phishing precision: 88.13%
+- Phishing recall: 81.14%
+- Phishing F1 score: 84.49%
+- Phishing false negatives: 376
 
----
+False negatives matter particularly for a phishing detector because they are
+phishing URLs classified as legitimate. The model output should therefore be
+treated as an additional signal, not proof of safety.
 
-## Model Evaluation
+## Web application
 
-The final Decision Tree was evaluated on **3,989 test samples**.
+The FastAPI application is a single-page interface containing the welcome
+section, detector, results, recent scan history, and safety assistant.
 
-pytest
-=================== test session starts ====================
-platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
-rootdir: C:\Users\rithg\Documents\PhishGuard AI
-plugins: anyio-4.15.1
-collected 10 items                                          
-
-tests\test_api.py ..                                  [ 20%]
-tests\test_features.py ........                       [100%]
-
-===================== warnings summary =====================
-.venv\Lib\site-packages\starlette\testclient.py:53
-  C:\Users\rithg\Documents\PhishGuard AI\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
-    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-============== 10 passed, 1 warning in 2.28s ===============
-(.venv) PS C:\Users\rithg\Documents\PhishGuard AI> git add requirements.txt tests/test_api.py
->> git commit -m "Add API endpoint tests"
->> git push
-[main afbaec7] Add API endpoint tests
- 2 files changed, 33 insertions(+)
- create mode 100644 tests/test_api.py
-Enumerating objects: 8, done.
-Counting objects: 100% (8/8), done.
-Delta compression using up to 16 threads
-Compressing objects: 100% (5/5), done.
-Writing objects: 100% (5/5), 681 bytes | 681.00 KiB/s, done.
-Total 5 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
-remote: Resolving deltas: 100% (3/3), completed with 3 localobjects.
-To https://github.com/rtl-gli/PhishGuard-AI.git
-   353fb7a..afbaec7  main -> main
-(.venv) PS C:\Users\rithg\Documents\PhishGuard AI> 
-
-
-### Feature-Importance Visualisations
-
-The project also generates:
-
-- `feature_importance.png` — impurity-based Decision Tree importance
-- `permutation_importance.png` — permutation importance measured using F1 score
-
-### Results
-
-- **Accuracy:** 85.11%
-- **Phishing precision:** 88.13%
-- **Phishing recall:** 81.14%
-- **Phishing F1-score:** 84.49%
-- **Phishing false negatives:** 376
-
-Confusion matrix:
-
-```text
-                 Predicted
-                 Legit  Phishing
-
-Actual Legit      1777     218
-Actual Phishing    376    1618
-```
-
-For a phishing detector, false negatives are particularly important because they represent phishing URLs that the model classified as legitimate.
-
----
-
-## Explainable AI
-
-Rather than only returning a classification, PhishGuard AI exposes the **Decision Tree's decision path**.
-
-For example, the model may evaluate characteristics such as:
-
-```text
-Subdomains > threshold
-        ↓
-TLD trust value <= threshold
-        ↓
-URL classified as potentially phishing
-```
-
-The web interface displays these decisions so that the prediction is more transparent.
-
-This is useful for understanding **why the model reached a particular prediction**, rather than treating the classifier as a black box.
-
----
-
-## Web Application
-
-PhishGuard AI includes a FastAPI web application.
-
-The interface allows a user to:
-
-1. Enter a URL
-2. Analyse the URL
-3. View the estimated phishing likelihood
-4. View the risk level
-5. See suspicious URL indicators
-6. Inspect the model's decision path
-7. Inspect the extracted technical features
-
-### API
-
-The main analysis endpoint is:
+The main API endpoint is:
 
 ```text
 POST /api/analyze
@@ -238,34 +124,104 @@ Example request:
 
 ```json
 {
-    "url": "https://example.com"
+  "url": "https://example.com"
 }
 ```
 
-The API returns the classification, estimated phishing likelihood, risk level, security indicators, extracted features and explainability information.
+The response includes the classification, estimated likelihood, risk level,
+security indicators, extracted features, and Decision Tree explanation.
 
----
+## Installation and local use
 
-## Project Structure
+Clone the repository and create a virtual environment:
+
+```powershell
+git clone https://github.com/rtl-gli/PhishGuard-AI.git
+cd PhishGuard-AI
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+Start the web application:
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+The API documentation is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Run the command-line tools:
+
+```powershell
+python src\predict.py "https://example.com"
+python src\explain.py "https://example.com"
+python src\evaluate.py
+python src\compare_models.py
+```
+
+## Testing
+
+Run the automated tests with:
+
+```powershell
+python -m pytest
+```
+
+The tests cover URL feature extraction, entropy, protocol detection, IP
+address detection, `@` symbols, query parameters, legitimate URL examples,
+suspicious URL examples, and the analysis API response.
+
+## Public portfolio
+
+The `docs/` directory contains a static portfolio site for GitHub Pages. It
+explains the project, shows the evaluation results, includes a safety FAQ, and
+links back to the source code.
+
+To publish it:
+
+1. Open the repository's **Settings → Pages**.
+2. Select **Deploy from a branch**.
+3. Choose branch `main`.
+4. Choose the `/docs` folder.
+5. Save.
+
+The public portfolio address is:
+
+```text
+https://rtl-gli.github.io/PhishGuard-AI/
+```
+
+GitHub Pages cannot run the Python backend. The full detector therefore runs
+locally unless it is deployed to a Python-capable hosting service.
+
+## Project structure
 
 ```text
 PhishGuard AI/
-│
 ├── app/
 │   ├── main.py
-│   ├── templates/
-│   │   └── index.html
+│   ├── templates/index.html
 │   └── static/
 │       ├── style.css
-│       └── script.js
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── model/
-│   └── phishing_model.pkl
-│
+│       ├── script.js
+│       └── chat.js
+├── docs/
+│   ├── index.html
+│   ├── styles.css
+│   ├── overrides.css
+│   └── script.js
+├── model/phishing_model.pkl
 ├── src/
 │   ├── features.py
 │   ├── train.py
@@ -273,236 +229,43 @@ PhishGuard AI/
 │   ├── evaluate.py
 │   ├── explain.py
 │   └── compare_models.py
-│
 ├── tests/
-│   └── test_features.py
-│
-├── notebooks/
-│   └── exploratory_analysis.ipynb
-│
+├── Dockerfile
+├── render.yaml
 ├── requirements.txt
-├── .gitignore
-├── README.md
-└── LICENSE
+└── README.md
 ```
-
----
-
-## Installation
-
-Clone the repository and create a virtual environment:
-
-```bash
-git clone https://github.com/rtl-gli/PhishGuard-AI.git
-cd PhishGuard-AI
-
-python -m venv .venv
-```
-
-Activate the environment on Windows:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Running the Model
-
-The prediction pipeline can be run from the terminal:
-
-```powershell
-python src\predict.py "https://example.com"
-```
-
-Model evaluation:
-
-```powershell
-python src\evaluate.py
-```
-
-Model comparison:
-
-```powershell
-python src\compare_models.py
-```
-
-Explainable prediction:
-
-```powershell
-python src\explain.py "https://example.com"
-```
-
----
-
-## Running the Web Application
-
-Start the FastAPI server:
-
-```powershell
-uvicorn app.main:app --reload
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8000
-```
-
-FastAPI's interactive API documentation is available at:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-### Deploying a free public version
-
-The repository includes a [`render.yaml`](./render.yaml) blueprint for
-deploying the application on Render's free web service. The trained model
-artifact is included in `model/phishing_model.pkl`; the raw training dataset
-remains excluded from Git because it is not needed at runtime.
-
-To deploy:
-
-1. Sign in to Render with GitHub.
-2. Choose **New +** and **Blueprint**.
-3. Select this repository and the branch containing `render.yaml`.
-4. Confirm the service creation.
-
-Render will provide a free HTTPS address similar to:
-
-```text
-https://phishguard-ai.onrender.com
-```
-
-### Deploying without payment details
-
-If a hosting provider asks for card details, you can use a free Hugging Face
-Space instead. This repository includes a [`Dockerfile`](./Dockerfile) that
-starts the FastAPI application on Hugging Face's required port.
-
-1. Create a free account at [huggingface.co](https://huggingface.co/).
-2. Create a new Space and choose **Docker** as the Space SDK.
-3. Set the Space visibility to **Public**.
-4. Upload or push the repository files, including `Dockerfile`, `app`,
-   `src`, `model`, and `requirements.txt`.
-5. Wait for the Space to build. Hugging Face will provide a public HTTPS URL.
-
-The free CPU Space may sleep when unused, but it does not require Render
-billing details and is suitable for a portfolio demonstration.
-
-### Free GitHub Pages portfolio
-
-This repository also includes a static portfolio site in [`docs/`](./docs).
-It can be published for free with GitHub Pages. In the repository settings,
-open **Pages**, choose **Deploy from a branch**, select `main`, choose the
-`/docs` folder, and save. GitHub will provide an address similar to:
-
-```text
-https://rtl-gli.github.io/PhishGuard-AI/
-```
-
-GitHub Pages can host the portfolio site, project explanation, results, and
-safety FAQ. The full FastAPI detector still needs to be run locally or on a
-Python-capable host because GitHub Pages does not run Python backends.
-
----
-
-## Testing
-
-Automated tests are included using `pytest`.
-
-Run:
-
-```powershell
-python -m pytest
-```
-
-The tests currently cover areas including:
-
-- Entropy calculation
-- URL feature extraction
-- Protocol detection
-- IP address detection
-- `@` symbol detection
-- Query parameter counting
-- Legitimate URL feature values
-- Suspicious URL feature values
-
----
 
 ## Limitations
 
-PhishGuard AI is an educational and experimental cybersecurity project.
-
-Important limitations include:
-
-- The model only analyses URL characteristics.
+- The model analyses URL characteristics only.
 - It does not inspect webpage content.
 - It does not check live domain reputation.
-- The dataset may not represent the distribution of URLs encountered in the real world.
-- The dataset is balanced, whereas real-world phishing prevalence is not necessarily balanced.
-- Model likelihood outputs should not be interpreted as guaranteed probabilities of maliciousness.
-- The heuristic security indicators are separate from the machine-learning model's decision path.
+- The dataset may not represent real-world URL distributions.
+- The dataset is balanced, while real-world phishing prevalence is not.
+- Likelihood outputs are model scores, not guaranteed probabilities.
+- Heuristic indicators are separate from the Decision Tree path.
 - A legitimate-looking URL can still lead to malicious content.
 
-These limitations mean the system should be considered an **additional security signal**, rather than a replacement for established security systems.
+## Future development
 
----
-
-## Future Development
-
-Potential future improvements include:
-
-- [ ] GitHub Actions continuous integration
-- [ ] Cross-validation
-- [ ] Probability calibration
-- [ ] Feature importance visualisation
-- [ ] Improved model threshold analysis
-- [ ] Larger and more diverse datasets
-- [ ] Browser extension
-- [ ] Email phishing analysis
-- [ ] Domain reputation checking
-- [ ] URL scanning history
-- [ ] More advanced machine-learning models
-
----
+- Cross-validation and probability calibration
+- More diverse training data
+- Improved threshold analysis
+- Browser extension support
+- Email phishing analysis
+- Domain reputation checking
+- More advanced models
 
 ## Technologies
 
-**Python**
+**Python:** pandas, NumPy, scikit-learn, joblib, tld, pytest
 
-- pandas
-- NumPy
-- scikit-learn
-- joblib
-- tld
-- pytest
-
-**Web**
-
-- FastAPI
-- Uvicorn
-- HTML
-- CSS
-- JavaScript
-
-**Development**
-
-- Git
-- GitHub
-- VS Code
-
----
+**Web:** FastAPI, Uvicorn, HTML, CSS, JavaScript
+**Development:** Git, GitHub, VS Code
 
 ## Author
 
-Developed as a personal cybersecurity and machine-learning project to explore practical applications of AI in cybersecurity.
-
-The project focuses on combining **cybersecurity, machine learning, software engineering and explainable AI** into a practical application.
+Developed as a personal cybersecurity and machine-learning project exploring
+practical applications of AI, explainability, and user-focused security
+design.
