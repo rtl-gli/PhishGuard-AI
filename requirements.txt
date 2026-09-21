@@ -3,7 +3,8 @@ pandas
 scikit-learn
 joblib
 tld
-fastapi
+fastapi[standard]
 uvicorn
 pytest
-httpx
+matplotlib
+httpx2
