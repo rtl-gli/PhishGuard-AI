@@ -49,6 +49,17 @@ Risk level, indicators, and explanation
 The system does not download or interact with the webpage. It analyses
 characteristics contained in the URL itself.
 
+```mermaid
+flowchart TD
+    A[URL] --> B[Feature extraction]
+    B --> C[16 URL features]
+    C --> D[Random Forest classifier]
+    D --> E[Risk level and score]
+    D --> F[Global feature-importance explanation]
+    E --> G[FastAPI web application]
+    F --> G
+```
+
 ## Machine learning
 
 The model was trained using the PhishTrap URL dataset:
@@ -83,6 +94,12 @@ raw URLs.
 | `query_param_count` | Number of query parameters |
 | `path_length` | Length of the URL path |
 
+These features are deliberately URL-only signals: long or unusually complex
+URLs, many subdomains, raw IP addresses, `@` symbols, redirect-like syntax,
+and high character entropy can occur in phishing links. They are not proof of
+malicious intent, so the application presents them as signals rather than
+verdicts.
+
 ### Model selection
 
 Logistic Regression was used as a baseline with 82.88% test accuracy. Several
@@ -109,6 +126,12 @@ selection. The final evaluation used 3,989 test samples:
 False negatives matter particularly for a phishing detector because they are
 phishing URLs classified as legitimate. The model output should therefore be
 treated as an additional signal, not proof of safety.
+
+The experiment uses a stratified 80/20 train/test split with
+`random_state=42`. The test set is held out until prediction and metric
+calculation; the five-fold cross-validation reported by `evaluate.py` is
+performed on the full labelled dataset only as a separate stability estimate.
+No test labels are used to fit the final model.
 
 ## Web application
 
@@ -205,7 +228,13 @@ python -m pytest
 
 The tests cover URL feature extraction, entropy, protocol detection, IP
 address detection, `@` symbols, query parameters, legitimate URL examples,
-suspicious URL examples, and the analysis API response.
+suspicious URL examples, malformed-input handling, length limits, and the
+analysis API response.
+
+The security regression set includes safe examples such as
+`https://google.com` and `https://example.com`, plus non-operational
+suspicious patterns such as IP-address hosts, `@` user-info, nested
+subdomains, redirect-like paths, long URLs, and many query parameters.
 
 ## Public portfolio
 
@@ -264,12 +293,30 @@ PhishGuard AI/
 
 - The model analyses URL characteristics only.
 - It does not inspect webpage content.
+- It does not execute websites or inspect page DOM.
+- It does not inspect certificates or query threat-intelligence feeds.
 - It does not check live domain reputation.
 - The dataset may not represent real-world URL distributions.
 - The dataset is balanced, while real-world phishing prevalence is not.
 - Likelihood outputs are model scores, not guaranteed probabilities.
 - Heuristic indicators are separate from model feature-importance explanations.
 - A legitimate-looking URL can still lead to malicious content.
+
+The explanation shown in the application is based on global Random Forest
+feature importance. It indicates which features are important to the trained
+model overall; it is not a causal explanation for one individual prediction.
+
+## Deployment
+
+The included `Dockerfile` runs the FastAPI application on the port supplied by
+the `PORT` environment variable. A deployment service must provide the
+tracked model artifact and install `requirements.txt`; the raw training
+dataset is not required to serve predictions.
+
+```powershell
+docker build -t phishguard-ai .
+docker run --rm -p 8000:8000 -e PORT=8000 phishguard-ai
+```
 
 ## Future development
 

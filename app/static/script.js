@@ -63,7 +63,7 @@ function displayResults(data) {
     classification.textContent = data.prediction === 1 ? "Potentially phishing" : "Likely legitimate";
     document.querySelector(".risk-icon").textContent = data.prediction === 1 ? "!" : "✓";
     renderIndicators(data.indicators);
-    renderDecisions(data.decisions);
+    renderExplanations(data.explanations);
     renderFeatures(data.features, data.url);
     results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -78,10 +78,10 @@ function renderIndicators(items) {
     });
 }
 
-function renderDecisions(items) {
+function renderExplanations(items) {
     decisions.innerHTML = "";
-    if (!items || !items.length) { decisions.textContent = "No decision-path information was returned."; return; }
-    items.forEach((decision, index) => {
+    if (!items || !items.length) { decisions.textContent = "No feature-importance information was returned."; return; }
+    items.forEach((explanation, index) => {
         const row = document.createElement("div");
         row.className = "decision-row";
         const number = document.createElement("span");
@@ -90,10 +90,10 @@ function renderDecisions(items) {
         const content = document.createElement("div");
         content.className = "decision-content";
         const name = document.createElement("strong");
-        name.textContent = featureLabels[decision.feature] || decision.feature;
-        const explanation = document.createElement("span");
-        explanation.textContent = `Value ${decision.value} ${decision.direction} threshold ${Number(decision.threshold).toFixed(3)}`;
-        content.append(name, explanation);
+        name.textContent = featureLabels[explanation.feature] || explanation.feature;
+        const detail = document.createElement("span");
+        detail.textContent = `Value ${explanation.value}; model importance ${Number(explanation.importance).toFixed(3)}`;
+        content.append(name, detail);
         row.append(number, content);
         decisions.appendChild(row);
     });

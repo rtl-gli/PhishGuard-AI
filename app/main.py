@@ -1,6 +1,7 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -47,10 +48,37 @@ def detector():
 
 @app.post("/api/analyze")
 def analyze_url(request: URLRequest):
+    url = request.url.strip()
+    if not url:
+        raise HTTPException(
+            status_code=422,
+            detail="Please provide a non-empty URL.",
+        )
+    if len(url) > 2048:
+        raise HTTPException(
+            status_code=422,
+            detail="The URL must be 2,048 characters or fewer.",
+        )
 
-    result = predict_url(request.url)
+    candidate = url if "://" in url else f"http://{url}"
+    try:
+        parsed = urlparse(candidate)
+        hostname = parsed.hostname
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail="Please provide a valid URL.",
+        ) from error
 
-    explanation = explain_url(request.url)
+    if not hostname or any(character.isspace() for character in hostname):
+        raise HTTPException(
+            status_code=422,
+            detail="Please provide a valid URL with a domain name.",
+        )
+
+    result = predict_url(url)
+
+    explanation = explain_url(url)
 
     return {
     "url": result["url"],

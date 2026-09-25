@@ -22,6 +22,7 @@ def test_analyze_url():
     assert "indicators" in data
     assert "features" in data
     assert "explanations" in data
+    assert data["explanations"]
 
 def test_analyze_url_requires_url():
     response = client.post(
@@ -30,3 +31,33 @@ def test_analyze_url_requires_url():
     )
 
     assert response.status_code == 422
+
+
+def test_analyze_url_rejects_blank_url():
+    response = client.post(
+        "/api/analyze",
+        json={"url": "   "},
+    )
+
+    assert response.status_code == 422
+    assert "non-empty" in response.json()["detail"]
+
+
+def test_analyze_url_rejects_invalid_url():
+    response = client.post(
+        "/api/analyze",
+        json={"url": "not a valid url"},
+    )
+
+    assert response.status_code == 422
+    assert "valid URL" in response.json()["detail"]
+
+
+def test_analyze_url_rejects_excessively_long_url():
+    response = client.post(
+        "/api/analyze",
+        json={"url": "https://example.com/" + "a" * 2048},
+    )
+
+    assert response.status_code == 422
+    assert "2,048" in response.json()["detail"]

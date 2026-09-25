@@ -46,25 +46,31 @@ const HISTORY_KEY = "phishguard-recent-scans";
 // Event listeners
 // -----------------------------
 
-scanForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    analyseURL();
-});
-
-newScanButton.addEventListener("click", () => {
-    results.classList.add("hidden");
-    urlInput.focus();
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+if (scanForm) {
+    scanForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        analyseURL();
     });
-});
+}
 
-clearHistoryButton.addEventListener("click", () => {
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-});
+if (newScanButton) {
+    newScanButton.addEventListener("click", () => {
+        results.classList.add("hidden");
+        urlInput.focus();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+}
+
+if (clearHistoryButton) {
+    clearHistoryButton.addEventListener("click", () => {
+        localStorage.removeItem(HISTORY_KEY);
+        renderHistory();
+    });
+}
 
 
 // -----------------------------
@@ -372,6 +378,9 @@ function getHistory() {
 
 
 function renderHistory() {
+    if (!historySection || !historyList) {
+        return;
+    }
 
     const history = getHistory();
 

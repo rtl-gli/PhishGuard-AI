@@ -63,3 +63,21 @@ def test_query_parameters():
     )
 
     assert features["query_param_count"] == 2
+
+
+def test_https_and_redirect_pattern_detection():
+    features = extract_features("https://example.com//evil")
+
+    assert features["protocol_exists"] == 1
+    assert features["has_double_slash_redirect"] == 1
+    assert features["path_depth"] == 1
+
+
+def test_long_url_and_many_query_parameters():
+    url = "https://example.com/login?" + "&".join(
+        f"key{index}=value" for index in range(5)
+    )
+    features = extract_features(url)
+
+    assert features["query_param_count"] == 5
+    assert features["path_length"] == 6
