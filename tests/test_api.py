@@ -21,8 +21,7 @@ def test_analyze_url():
     assert "prediction" in data
     assert "indicators" in data
     assert "features" in data
-    assert "decisions" in data
-
+    assert "explanations" in data
 
 def test_analyze_url_requires_url():
     response = client.post(

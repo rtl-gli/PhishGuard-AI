@@ -59,5 +59,5 @@ def analyze_url(request: URLRequest):
     "prediction": result["prediction"],
     "indicators": result["indicators"],
     "features": result["features"],
-    "decisions": explanation["decisions"],
+    "explanations": explanation["explanations"],
 }

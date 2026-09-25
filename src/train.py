@@ -3,13 +3,13 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
 )
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 
 
 DATA_PATH = Path("data/raw/phishtrap_full.csv")
@@ -50,9 +50,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-model = DecisionTreeClassifier(
-    max_depth=8,
+model = RandomForestClassifier(
+    n_estimators=200,
+    max_depth=12,
     random_state=42,
+    n_jobs=-1,
 )
 
 model.fit(X_train, y_train)

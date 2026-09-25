@@ -1,13 +1,21 @@
-from pathlib import Path
-
 import pandas as pd
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+)
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
 
-DATA_PATH = Path("data/raw/phishtrap_full.csv")
+DATA_PATH = "data/raw/phishtrap_full.csv"
 
 FEATURE_COLUMNS = [
     "url_length",
@@ -29,96 +37,79 @@ FEATURE_COLUMNS = [
 ]
 
 
-df = pd.read_csv(DATA_PATH)
+def main():
+    df = pd.read_csv(DATA_PATH)
 
-X = df[FEATURE_COLUMNS]
-y = df["label"]
+    X = df[FEATURE_COLUMNS]
+    y = df["label"]
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y,
-)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.20,
+        random_state=42,
+        stratify=y,
+    )
 
+    models = {
+        "Logistic Regression": Pipeline([
+            ("scaler", StandardScaler()),
+            ("model", LogisticRegression(max_iter=1000, random_state=42)),
+        ]),
+        "Decision Tree": DecisionTreeClassifier(
+            max_depth=8,
+            random_state=42,
+        ),
+        "Random Forest": RandomForestClassifier(
+            n_estimators=200,
+            max_depth=12,
+            random_state=42,
+            n_jobs=-1,
+        ),
+    }
 
-depths = [3, 5, 8, 12, None]
-
-
-print("=" * 75)
-print("DECISION TREE DEPTH COMPARISON")
-print("=" * 75)
-
-print(
-    f"{'Depth':<10}"
-    f"{'Train Acc.':<15}"
-    f"{'Test Acc.':<15}"
-    f"{'Precision':<15}"
-    f"{'Recall':<15}"
-    f"{'F1':<10}"
-    f"{'False Neg.':<12}"
-)
-
-print("-" * 75)
-
-
-for depth in depths:
-
-    model = DecisionTreeClassifier(
-        max_depth=depth,
+    cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
         random_state=42,
     )
 
-    model.fit(X_train, y_train)
+    print("=== Model Comparison ===\n")
 
-    train_predictions = model.predict(X_train)
-    test_predictions = model.predict(X_test)
+    for name, model in models.items():
+        model.fit(X_train, y_train)
 
-    train_accuracy = accuracy_score(
-        y_train,
-        train_predictions,
-    )
+        predictions = model.predict(X_test)
+        probabilities = model.predict_proba(X_test)[:, 1]
 
-    test_accuracy = accuracy_score(
-        y_test,
-        test_predictions,
-    )
+        cv_scores = cross_val_score(
+            model,
+            X,
+            y,
+            cv=cv,
+            scoring="accuracy",
+        )
 
-    precision = precision_score(
-        y_test,
-        test_predictions,
-        pos_label=1,
-    )
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions)
+        recall = recall_score(y_test, predictions)
+        f1 = f1_score(y_test, predictions)
+        roc_auc = roc_auc_score(y_test, probabilities)
 
-    recall = recall_score(
-        y_test,
-        test_predictions,
-        pos_label=1,
-    )
+        false_negatives = ((y_test == 1) & (predictions == 0)).sum()
 
-    f1 = f1_score(
-        y_test,
-        test_predictions,
-        pos_label=1,
-    )
+        print(f"{name}")
+        print("-" * len(name))
+        print(f"Test accuracy:       {accuracy:.4f}")
+        print(f"Precision:            {precision:.4f}")
+        print(f"Recall:               {recall:.4f}")
+        print(f"F1 score:             {f1:.4f}")
+        print(f"ROC-AUC:              {roc_auc:.4f}")
+        print(f"False negatives:      {false_negatives}")
+        print(f"CV accuracy:          {cv_scores.mean():.4f}")
+        print(f"CV standard deviation:{cv_scores.std():.4f}")
+        print()
 
-    false_negatives = (
-        (y_test == 1) & (test_predictions == 0)
-    ).sum()
 
-    depth_name = (
-        "None"
-        if depth is None
-        else str(depth)
-    )
-
-    print(
-        f"{depth_name:<10}"
-        f"{train_accuracy:<15.2%}"
-        f"{test_accuracy:<15.2%}"
-        f"{precision:<15.2%}"
-        f"{recall:<15.2%}"
-        f"{f1:<10.2%}"
-        f"{false_negatives:<12}"
-    )
+if __name__ == "__main__":
+    main()
