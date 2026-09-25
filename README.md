@@ -21,7 +21,7 @@ Pages portfolio.
 - Classify a URL as LOW, MEDIUM, or HIGH risk
 - Return an estimated phishing likelihood
 - Highlight suspicious URL characteristics
-- Show the Decision Tree path behind the result
+- Show model feature-importance explanations behind the result
 - Display technical URL features using clearer labels
 - Provide practical next steps for non-technical users
 - Offer a local, in-browser safety assistant
@@ -40,7 +40,7 @@ Feature extraction
 16 URL features
  │
  ▼
-Decision Tree model
+Random Forest model
  │
  ▼
 Risk level, indicators, and explanation
@@ -96,8 +96,9 @@ Decision Tree depths were then compared using the same train/test split.
 | 12 | 84.26% | 79.24% | 83.42% | 414 |
 | Unlimited | 82.88% | 76.78% | 81.76% | 463 |
 
-The deployed model uses a maximum depth of 8. The final evaluation used 3,989
-test samples:
+The deployed artifact is a Random Forest with 200 trees and maximum depth 12.
+The Decision Tree depth comparison above is an experiment used during model
+selection. The final evaluation used 3,989 test samples:
 
 - Accuracy: 85.11%
 - Phishing precision: 88.13%
@@ -129,7 +130,7 @@ Example request:
 ```
 
 The response includes the classification, estimated likelihood, risk level,
-security indicators, extracted features, and Decision Tree explanation.
+security indicators, extracted features, and feature-importance explanation.
 
 ## Installation and local use
 
@@ -146,29 +147,53 @@ python -m pip install -r requirements.txt
 Start the web application:
 
 ```powershell
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8001
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:8000/
+http://127.0.0.1:8001/
 ```
 
 The API documentation is available at:
 
 ```text
-http://127.0.0.1:8000/docs
+http://127.0.0.1:8001/docs
 ```
 
 Run the command-line tools:
 
 ```powershell
-python src\predict.py "https://example.com"
-python src\explain.py "https://example.com"
-python src\evaluate.py
-python src\compare_models.py
+python -m src.predict "https://example.com"
+python -m src.explain "https://example.com"
+python -m src.evaluate
+python -m src.compare_models
 ```
+
+### Reproducing the experiments
+
+The raw PhishTrap CSV is intentionally not tracked in Git. To reproduce the
+experiments, obtain the project copy of `phishtrap_full.csv` and place it at:
+
+```text
+data/raw/phishtrap_full.csv
+```
+
+The expected dataset has 19,944 rows, 16 feature columns, and a `label`
+column containing 9,972 legitimate and 9,972 phishing examples. The scripts
+validate the required columns before running. From the repository root, run:
+
+```powershell
+python -m src.train
+python -m src.compare_models
+python -m src.evaluate
+```
+
+The training and evaluation split uses `random_state=42`, stratification, and
+an 80/20 test split. Evaluation also reports five-fold stratified
+cross-validation. If the dataset is missing, the scripts report the expected
+location and do not silently fall back to another dataset.
 
 ## Testing
 
@@ -224,14 +249,13 @@ PhishGuard AI/
 ├── model/phishing_model.pkl
 ├── src/
 │   ├── features.py
+│   ├── project.py
 │   ├── train.py
 │   ├── predict.py
 │   ├── evaluate.py
 │   ├── explain.py
 │   └── compare_models.py
 ├── tests/
-├── Dockerfile
-├── render.yaml
 ├── requirements.txt
 └── README.md
 ```
@@ -244,7 +268,7 @@ PhishGuard AI/
 - The dataset may not represent real-world URL distributions.
 - The dataset is balanced, while real-world phishing prevalence is not.
 - Likelihood outputs are model scores, not guaranteed probabilities.
-- Heuristic indicators are separate from the Decision Tree path.
+- Heuristic indicators are separate from model feature-importance explanations.
 - A legitimate-looking URL can still lead to malicious content.
 
 ## Future development

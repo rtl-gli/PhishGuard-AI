@@ -1,18 +1,15 @@
-from pathlib import Path
-
 import joblib
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
-
-DATA_PATH = Path("data/raw/phishtrap_full.csv")
-MODEL_PATH = Path("model/phishing_model.pkl")
-OUTPUT_PATH = Path("permutation_importance.png")
+from src.project import MODEL_PATH, PROJECT_ROOT, load_dataset
 
 
-df = pd.read_csv(DATA_PATH)
+OUTPUT_PATH = PROJECT_ROOT / "permutation_importance.png"
+
+df = load_dataset()
 
 model_data = joblib.load(MODEL_PATH)
 

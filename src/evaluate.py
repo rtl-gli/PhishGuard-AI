@@ -1,6 +1,4 @@
 import joblib
-import pandas as pd
-
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -8,10 +6,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-
-
-MODEL_PATH = "model/phishing_model.pkl"
-DATA_PATH = "data/raw/phishtrap_full.csv"
+from src.project import MODEL_PATH, load_dataset
 
 
 def main():
@@ -21,7 +16,7 @@ def main():
     feature_columns = model_data["features"]
 
     # Load dataset
-    df = pd.read_csv(DATA_PATH)
+    df = load_dataset()
 
     X = df[feature_columns]
     y = df["label"]

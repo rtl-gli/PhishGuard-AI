@@ -1,36 +1,13 @@
-from pathlib import Path
-
 import pandas as pd
 
 from sklearn.metrics import accuracy_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
-
-DATA_PATH = Path("data/raw/phishtrap_full.csv")
-
-
-FEATURE_COLUMNS = [
-    "url_length",
-    "hyphen_count",
-    "digit_count",
-    "subdomain_count",
-    "trusted_tld",
-    "protocol_exists",
-    "special_char_count",
-    "entropy",
-    "path_depth",
-    "domain_length",
-    "is_domain_ip",
-    "has_at_symbol",
-    "has_double_slash_redirect",
-    "tld_length",
-    "query_param_count",
-    "path_length",
-]
+from src.project import FEATURE_COLUMNS, load_dataset
 
 
-df = pd.read_csv(DATA_PATH)
+df = load_dataset()
 
 X = df[FEATURE_COLUMNS]
 y = df["label"]

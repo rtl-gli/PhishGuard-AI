@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import joblib
-import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -11,31 +8,9 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 
+from src.project import FEATURE_COLUMNS, MODEL_PATH, load_dataset
 
-DATA_PATH = Path("data/raw/phishtrap_full.csv")
-MODEL_PATH = Path("model/phishing_model.pkl")
-
-FEATURE_COLUMNS = [
-    "url_length",
-    "hyphen_count",
-    "digit_count",
-    "subdomain_count",
-    "trusted_tld",
-    "protocol_exists",
-    "special_char_count",
-    "entropy",
-    "path_depth",
-    "domain_length",
-    "is_domain_ip",
-    "has_at_symbol",
-    "has_double_slash_redirect",
-    "tld_length",
-    "query_param_count",
-    "path_length",
-]
-
-
-df = pd.read_csv(DATA_PATH)
+df = load_dataset()
 
 X = df[FEATURE_COLUMNS]
 y = df["label"]

@@ -1,12 +1,11 @@
-from pathlib import Path
-
 import joblib
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from src.project import MODEL_PATH, PROJECT_ROOT
 
-MODEL_PATH = Path("model/phishing_model.pkl")
-OUTPUT_PATH = Path("feature_importance.png")
+
+OUTPUT_PATH = PROJECT_ROOT / "feature_importance.png"
 
 
 model_data = joblib.load(MODEL_PATH)

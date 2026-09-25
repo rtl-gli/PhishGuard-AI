@@ -1,5 +1,3 @@
-import pandas as pd
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -14,31 +12,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
-
-DATA_PATH = "data/raw/phishtrap_full.csv"
-
-FEATURE_COLUMNS = [
-    "url_length",
-    "hyphen_count",
-    "digit_count",
-    "subdomain_count",
-    "trusted_tld",
-    "protocol_exists",
-    "special_char_count",
-    "entropy",
-    "path_depth",
-    "domain_length",
-    "is_domain_ip",
-    "has_at_symbol",
-    "has_double_slash_redirect",
-    "tld_length",
-    "query_param_count",
-    "path_length",
-]
+from src.project import FEATURE_COLUMNS, load_dataset
 
 
 def main():
-    df = pd.read_csv(DATA_PATH)
+    df = load_dataset()
 
     X = df[FEATURE_COLUMNS]
     y = df["label"]

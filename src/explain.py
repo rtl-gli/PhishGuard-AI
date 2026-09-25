@@ -2,9 +2,7 @@ import joblib
 import pandas as pd
 
 from src.features import extract_features
-
-
-MODEL_PATH = "model/phishing_model.pkl"
+from src.project import MODEL_PATH
 
 
 FEATURE_NAMES = {
