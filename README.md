@@ -28,6 +28,17 @@ Pages portfolio.
 - Store recent scans only in the browser's local storage
 - Publish a project portfolio through GitHub Pages
 
+## Project summary
+
+PhishGuard AI is an explainable machine-learning system for detecting
+potentially malicious URLs. I engineered 16 URL-based features and compared
+Logistic Regression, Decision Tree, and Random Forest models before selecting
+a Random Forest classifier. I built a FastAPI backend and web interface,
+added automated API and feature-extraction tests, and deployed the application
+publicly. The project also investigates global model feature importance and
+documents limitations including false positives, false negatives, and
+URL-only analysis.
+
 ## How it works
 
 ```text
