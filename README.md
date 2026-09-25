@@ -19,7 +19,7 @@ Pages portfolio.
 
 - Analyse URLs without opening the destination website
 - Classify a URL as LOW, MEDIUM, or HIGH risk
-- Return an estimated phishing likelihood
+- Return a model risk score
 - Highlight suspicious URL characteristics
 - Show model feature-importance explanations behind the result
 - Display technical URL features using clearer labels

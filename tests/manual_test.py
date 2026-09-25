@@ -24,7 +24,7 @@ for url in test_urls:
     print(f"\nURL: {url}")
     print(f"Risk: {result['risk_level']}")
     print(
-        f"Estimated phishing likelihood: "
+        f"Model risk score: "
         f"{result['phishing_probability']:.2%}"
     )
 
