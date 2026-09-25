@@ -1,4 +1,5 @@
 from pathlib import Path
+from ipaddress import ip_address
 from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException
@@ -70,7 +71,18 @@ def analyze_url(request: URLRequest):
             detail="Please provide a valid URL.",
         ) from error
 
-    if not hostname or any(character.isspace() for character in hostname):
+    is_ip_address = False
+    try:
+        ip_address(hostname)
+        is_ip_address = True
+    except ValueError:
+        pass
+
+    if (
+        not hostname
+        or any(character.isspace() for character in hostname)
+        or ("." not in hostname and not is_ip_address)
+    ):
         raise HTTPException(
             status_code=422,
             detail="Please provide a valid URL with a domain name.",

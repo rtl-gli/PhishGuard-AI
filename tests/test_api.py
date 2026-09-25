@@ -53,6 +53,16 @@ def test_analyze_url_rejects_invalid_url():
     assert "valid URL" in response.json()["detail"]
 
 
+def test_analyze_url_rejects_single_label_hostname():
+    response = client.post(
+        "/api/analyze",
+        json={"url": "not-a-url"},
+    )
+
+    assert response.status_code == 422
+    assert "valid URL" in response.json()["detail"]
+
+
 def test_analyze_url_rejects_excessively_long_url():
     response = client.post(
         "/api/analyze",
