@@ -6,6 +6,8 @@ from src.features import clean_url, extract_features
 
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "model" / "phishing_model.pkl"
+MEDIUM_RISK_THRESHOLD = 0.40
+HIGH_RISK_THRESHOLD = 0.75
 
 
 def get_indicators(features):
@@ -69,9 +71,9 @@ def predict_url(url):
         list(model.classes_).index(1)
     ]
 
-    if phishing_probability >= 0.75:
+    if phishing_probability >= HIGH_RISK_THRESHOLD:
         risk_level = "HIGH"
-    elif phishing_probability >= 0.40:
+    elif phishing_probability >= MEDIUM_RISK_THRESHOLD:
         risk_level = "MEDIUM"
     else:
         risk_level = "LOW"
@@ -100,7 +102,7 @@ if __name__ == "__main__":
     result = predict_url(url)
 
     print("\nPhishGuard AI")
-    print("────────────────────────────")
+    print("----------------------------")
     print(f"URL: {result['url']}")
     print(f"Risk level: {result['risk_level']}")
     print(f"Model risk score: {result['phishing_probability']:.2%}")
@@ -114,6 +116,6 @@ if __name__ == "__main__":
 
     if result["indicators"]:
         for indicator in result["indicators"]:
-            print(f"• {indicator}")
+            print(f"- {indicator}")
     else:
-        print("• No obvious suspicious URL characteristics detected")
+        print("- No obvious suspicious URL characteristics detected")

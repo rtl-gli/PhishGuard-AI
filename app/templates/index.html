@@ -103,13 +103,13 @@
                 <div class="risk-score">
                     <div class="score-heading"><span>Model risk score</span><strong id="probability">0%</strong></div>
                     <div class="risk-bar" role="progressbar" aria-label="Model risk score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="riskProgress" class="risk-progress"></div></div>
-                    <p class="score-note">This is an estimate based on URL patterns, not a guarantee.</p>
+                    <p class="score-note">The score reflects how URL features compare with patterns learned during training. It is not proof that a URL is malicious; legitimate URLs can be flagged incorrectly.</p>
                 </div>
             </div>
 
             <div class="result-grid">
                 <section class="result-section indicators-section">
-                    <div class="section-title"><span class="title-icon warning-icon">!</span><div><h3>What stood out</h3><p>Signals the model noticed in this link.</p></div></div>
+                    <div class="section-title"><span class="title-icon warning-icon">!</span><div><h3>URL heuristic indicators</h3><p>These are simple cues for context and do not determine the model score.</p></div></div>
                     <ul id="indicators"></ul>
                 </section>
                 <section class="result-section next-steps">
@@ -125,7 +125,7 @@
             <details class="technical-details">
                 <summary><span><span class="title-icon chart-icon">⌁</span> See the technical explanation</span><span class="summary-chevron">⌄</span></summary>
                 <div class="technical-content">
-                    <div class="explanation-block"><h3>Which features matter to the model?</h3><div id="decisions" class="decisions"></div></div>
+                    <div class="explanation-block"><h3>Important features (global model importance)</h3><div id="decisions" class="decisions"></div></div>
                     <div class="explanation-block"><h3>URL features</h3><div id="features" class="features"></div></div>
                 </div>
             </details>

@@ -54,7 +54,7 @@ importance = importance.sort_values(
 
 
 print("PhishGuard AI - Permutation Importance")
-print("──────────────────────────────────────")
+print("--------------------------------------")
 
 print("\nFeature importance:")
 

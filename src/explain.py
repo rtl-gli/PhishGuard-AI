@@ -22,6 +22,16 @@ FEATURE_NAMES = {
     "tld_length": "TLD length",
     "query_param_count": "Query parameters",
     "path_length": "Path length",
+    "hostname_entropy": "Hostname entropy",
+    "domain_digit_ratio": "Registered-domain digit ratio",
+    "path_digit_ratio": "Path digit ratio",
+    "query_length": "Query length",
+    "hostname_hyphen_count": "Hostname hyphens",
+    "domain_token_count": "Registered-domain tokens",
+    "suspicious_keyword_count": "Authentication-related path terms",
+    "percent_encoded_count": "Percent-encoded characters",
+    "punycode_detected": "Punycode hostname",
+    "registered_domain_length": "Registered-domain length",
 }
 
 

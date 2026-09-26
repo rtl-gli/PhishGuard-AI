@@ -28,8 +28,8 @@ importance = importance.sort_values(
 )
 
 
-print("PhishGuard AI - Feature Importance")
-print("──────────────────────────────────")
+print("PhishGuard AI - Random Forest Feature Importance")
+print("------------------------------------------------")
 
 print("\nFeature importance:")
 

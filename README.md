@@ -31,13 +31,13 @@ Pages portfolio.
 ## Project summary
 
 PhishGuard AI is an explainable machine-learning system for detecting
-potentially malicious URLs. I engineered 16 URL-based features and compared
-Logistic Regression, Decision Tree, and Random Forest models before selecting
-a Random Forest classifier. I built a FastAPI backend and web interface,
-added automated API and feature-extraction tests, and deployed the application
-publicly. The project also investigates global model feature importance and
-documents limitations including false positives, false negatives, and
-URL-only analysis.
+potentially malicious URLs. The v1 model uses 16 URL-based features and a
+Random Forest classifier. A follow-up experiment investigated a reported
+false positive, added hard-negative training examples, tested ten additional
+hostname/path/query features, and measured thresholds on a domain-disjoint
+test split. The experiment is documented separately from the deployed v1
+artifact; it does not imply that URL-only analysis can establish whether a
+site is safe.
 
 ## How it works
 
@@ -48,7 +48,7 @@ URL
 Feature extraction
  │
  ▼
-16 URL features
+16 model features (10 additional features evaluated experimentally)
  │
  ▼
 Random Forest model
@@ -63,7 +63,7 @@ characteristics contained in the URL itself.
 ```mermaid
 flowchart TD
     A[URL] --> B[Feature extraction]
-    B --> C[16 URL features]
+    B --> C[URL structure features]
     C --> D[Random Forest classifier]
     D --> E[Risk level and score]
     D --> F[Global feature-importance explanation]
@@ -73,12 +73,18 @@ flowchart TD
 
 ## Machine learning
 
-The model was trained using the PhishTrap URL dataset:
+The released v1 model was trained using an earlier PhishTrap snapshot. For a
+reproducible follow-up experiment, this repository pins the MIT-licensed
+[`saidutta69/PhishTrap` dataset](https://huggingface.co/datasets/saidutta69/PhishTrap)
+at revision
+`26dc2bff5f8c26346f26611bab102f8d0a0fc7c2`. Its build manifest identifies
+build `20260926T022930Z`, with 19,948 rows (9,974 per label), 16 stored URL
+features, the original URL, and provenance fields. The pinned CSV's SHA-256 is
+`2b66391ff8af4e63c35648b65b399a4c590ea094733dda00534174e11196fc3c`.
 
-- 19,944 URLs
-- 9,972 legitimate URLs
-- 9,972 phishing URLs
-- 16 URL-based features
+The dataset card reports 19,954 rows, but the manifest and CSV at the pinned
+revision both contain 19,948. The loader checks the pinned checksum, row count,
+and class balance instead of trusting the card's stale count.
 
 The raw dataset is excluded from Git. The small trained model artifact is
 included because it is needed to run the application; it does not contain the
@@ -105,44 +111,86 @@ raw URLs.
 | `query_param_count` | Number of query parameters |
 | `path_length` | Length of the URL path |
 
-These features are deliberately URL-only signals: long or unusually complex
-URLs, many subdomains, raw IP addresses, `@` symbols, redirect-like syntax,
-and high character entropy can occur in phishing links. They are not proof of
-malicious intent, so the application presents them as signals rather than
-verdicts.
+These 16 URL-only features are the inputs used by the current and candidate
+Random Forests. Long or unusually complex URLs, many subdomains, raw IP
+addresses, `@` symbols, redirect-like syntax, and high character entropy can
+occur in phishing links. They are not proof of malicious intent.
 
-### Model selection
+The extractor also exposes ten experimental features that distinguish parts
+of the URL:
 
-Logistic Regression was used as a baseline with 82.88% test accuracy. Several
-Decision Tree depths were then compared using the same train/test split.
+| Experimental feature | Scope |
+|---|---|
+| `hostname_entropy` | Hostname only |
+| `domain_digit_ratio` | Digits in the registrable domain label |
+| `path_digit_ratio` | Digits in the URL path |
+| `query_length` | Query string only |
+| `hostname_hyphen_count` | Hostname only |
+| `domain_token_count` | Tokens in the registrable domain label |
+| `suspicious_keyword_count` | Authentication-related terms in path/query |
+| `percent_encoded_count` | Valid percent-encoded octets |
+| `punycode_detected` | Whether a hostname label uses the `xn--` form |
+| `registered_domain_length` | Registrable domain, excluding subdomains |
 
-| Max depth | Test accuracy | Phishing recall | Phishing F1 | False negatives |
-|---:|---:|---:|---:|---:|
-| 3 | 80.32% | 69.66% | 77.97% | 605 |
-| 5 | 83.35% | 78.13% | 82.43% | 436 |
-| **8** | **85.11%** | **81.14%** | **84.49%** | **376** |
-| 12 | 84.26% | 79.24% | 83.42% | 414 |
-| Unlimited | 82.88% | 76.78% | 81.76% | 463 |
+The 26-feature model did not outperform the 16-feature model on the
+domain-disjoint test set, so those ten features are not used by the current
+candidate model.
 
-The deployed artifact is a Random Forest with 200 trees and maximum depth 12.
-The Decision Tree depth comparison above is an experiment used during model
-selection. The final evaluation used 3,989 test samples:
+### False-positive investigation and model comparison
 
-- Accuracy: 85.11%
-- Phishing precision: 88.13%
-- Phishing recall: 81.14%
-- Phishing F1 score: 84.49%
-- Phishing false negatives: 376
+The reported FastAPI Cloud dashboard URL was HIGH under the released model
+(86.37% model risk score). Its hostname alone, with no path, was also HIGH
+(78.06%) and had no heuristic indicators. This established that the model
+score—not the human-readable indicator rules—caused the false positive.
+After training with generated legitimate hard negatives, the 16-feature
+candidate scored the reported URL at 69.76% (MEDIUM under the existing 0.75
+HIGH cutoff). The 26-feature candidate scored it at 75.01% (HIGH).
 
-False negatives matter particularly for a phishing detector because they are
-phishing URLs classified as legitimate. The model output should therefore be
-treated as an additional signal, not proof of safety.
+The upstream PhishTrap train/validation/test files share registrable domains
+(366 between train/validation, 416 between train/test, and 164 between
+validation/test). The experiment therefore re-splits the pinned full CSV with
+`StratifiedGroupKFold`, keeping registrable domains disjoint:
 
-The experiment uses a stratified 80/20 train/test split with
-`random_state=42`. The test set is held out until prediction and metric
-calculation; the five-fold cross-validation reported by `evaluate.py` is
-performed on the full labelled dataset only as a separate stability estimate.
-No test labels are used to fit the final model.
+- Train: 13,959 rows
+- Validation: 2,995 rows
+- Test: 2,994 rows
+
+Five-fold cross-validation is also grouped by registrable domain. The
+hard-negative training augmentation creates five complex URL patterns on
+each of 200 deterministically selected legitimate training hosts (1,000
+additional label-0 examples). These paths are synthetic; they are not asserted
+to exist on the corresponding sites.
+The selected model's five-fold grouped cross-validation accuracy was 84.75%
+(standard deviation 0.92%).
+
+Test-set results at a binary decision threshold of 0.50:
+
+| Model | Features | Accuracy | Precision | Recall | F1 | ROC-AUC | FP | FN |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Random Forest baseline | 16 | 87.14% | 88.56% | 85.30% | 86.90% | 0.9398 | 165 | 220 |
+| Random Forest + hard negatives | 16 | **87.58%** | **89.53%** | 85.10% | **87.26%** | **0.9401** | **149** | 223 |
+| Random Forest + hard negatives | 26 | 86.07% | 86.59% | 85.37% | 85.97% | 0.9357 | 198 | 219 |
+
+The selected 16-feature hard-negative model reduced test false positives by
+16, with three additional false negatives relative to the 16-feature baseline.
+
+The constructed hard-case set contains 501 legitimate cases (500 generated
+from held-out Tranco domains and the user-supplied dashboard URL) and 100
+phishing cases from the pinned validation split prioritized for HTTPS, trusted
+TLDs, no IP address, no `@` symbol, and shorter URL lengths. At threshold
+0.50 the model made one false positive and missed 88 of those 100 difficult
+phishing cases. This stress set is biased by design and is not a prevalence
+estimate; it shows that URL-structure-only features can still miss phishing
+URLs that resemble legitimate URLs.
+
+Thresholds are measured, not silently changed. On the held-out test split,
+the candidate at 0.75 had 48 false positives and 359 false negatives (FPR
+3.21%, FNR 23.98%). At 0.80 it had 31 false positives and 408 false negatives
+(FPR 2.07%, FNR 27.25%); at 0.85 it had 20 false positives and 486 false
+negatives. The HIGH cutoff remains at 0.75 to preserve phishing recall; the
+reported dashboard case scores MEDIUM at 69.76%. The dataset is balanced
+50/50, so precision and model scores do not represent real-world phishing
+likelihood.
 
 ## Web application
 
@@ -163,7 +211,7 @@ Example request:
 }
 ```
 
-The response includes the classification, estimated likelihood, risk level,
+The response includes the classification, model risk score, risk level,
 security indicators, extracted features, and feature-importance explanation.
 
 ## Installation and local use
@@ -207,16 +255,38 @@ python -m src.compare_models
 
 ### Reproducing the experiments
 
-The raw PhishTrap CSV is intentionally not tracked in Git. To reproduce the
-experiments, obtain the project copy of `phishtrap_full.csv` and place it at:
+The raw PhishTrap CSV and generated splits are intentionally not tracked in
+Git. Download the pinned MIT-licensed snapshot (revision
+`26dc2bff5f8c26346f26611bab102f8d0a0fc7c2`) from Hugging Face:
 
-```text
-data/raw/phishtrap_full.csv
+```powershell
+$revision = "26dc2bff5f8c26346f26611bab102f8d0a0fc7c2"
+New-Item -ItemType Directory -Force "data\raw" | Out-Null
+Invoke-WebRequest `
+  -Uri "https://huggingface.co/datasets/saidutta69/PhishTrap/resolve/$revision/data/phishtrap_full.csv" `
+  -OutFile "data\raw\phishtrap_full.csv"
 ```
 
-The expected dataset has 19,944 rows, 16 feature columns, and a `label`
-column containing 9,972 legitimate and 9,972 phishing examples. The scripts
-validate the required columns before running. From the repository root, run:
+The loader verifies the file's SHA-256, 19,948 rows, and balanced labels. It
+also verifies that the dataset's stored 16 features match the runtime feature
+extractor. Prepare deterministic 70/15/15 train/validation/test splits with
+registrable domains kept disjoint:
+
+```powershell
+python -m src.prepare_dataset
+```
+
+For the local hard-case experiment, prepare difficult legitimate URL patterns
+and phishing examples selected by HTTPS, TLD, IP, `@`, and URL-length
+characteristics. Optionally pass a known-legitimate URL to include it in the
+local regression set:
+
+```powershell
+python -m src.prepare_hard_cases --legitimate-url "https://example.com/a/long/path?source=newsletter"
+```
+
+The hard-case files contain phishing URLs. They are Git-ignored; do not open
+them in a browser. Then run:
 
 ```powershell
 python -m src.train
@@ -224,10 +294,19 @@ python -m src.compare_models
 python -m src.evaluate
 ```
 
-The training and evaluation split uses `random_state=42`, stratification, and
-an 80/20 test split. Evaluation also reports five-fold stratified
-cross-validation. If the dataset is missing, the scripts report the expected
-location and do not silently fall back to another dataset.
+Training writes a candidate model rather than overwriting the released
+artifact. Comparison includes Logistic Regression, Decision Tree, 16-feature
+and 26-feature Random Forests, and both hard-negative-augmented Random Forest
+variants. Evaluation reports precision, recall, F1, ROC-AUC, false-positive
+and false-negative counts/rates, five-fold group-stratified cross-validation,
+and threshold sweeps on validation, held-out test, and constructed hard cases.
+The scores are for a balanced dataset and should not be interpreted as
+real-world calibrated probabilities. After reviewing the results, promote the
+candidate with:
+
+```powershell
+python -m src.promote_model
+```
 
 ## Testing
 

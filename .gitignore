@@ -10,3 +10,6 @@ model/*.pkl
 # Dataset
 data/raw/*.csv
 data/raw/*.json
+data/splits/*.csv
+data/splits/*.json
+data/validation/*.csv

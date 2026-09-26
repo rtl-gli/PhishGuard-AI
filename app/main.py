@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent
 app = FastAPI(
     title="PhishGuard AI",
     description="Explainable AI phishing URL detection",
-    version="1.0.0",
+    version="1.1.0",
 )
 
 

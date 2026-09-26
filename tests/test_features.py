@@ -1,4 +1,8 @@
+import pandas as pd
+
+from src.domains import registrable_domain
 from src.features import compute_entropy, extract_features
+from src.hard_cases import generate_complex_legitimate_urls
 
 
 def test_entropy_empty_string():
@@ -81,3 +85,57 @@ def test_long_url_and_many_query_parameters():
 
     assert features["query_param_count"] == 5
     assert features["path_length"] == 6
+
+
+def test_hostname_path_and_query_features_are_separate():
+    features = extract_features(
+        "https://sub.example.co.uk/verify/55?next=%2Fhome"
+    )
+
+    assert features["hostname_entropy"] == compute_entropy("sub.example.co.uk")
+    assert features["domain_digit_ratio"] == 0
+    assert features["path_digit_ratio"] == 0.2
+    assert features["query_length"] == len("next=%2Fhome")
+    assert features["hostname_hyphen_count"] == 0
+    assert features["domain_token_count"] == 1
+    assert features["suspicious_keyword_count"] == 1
+    assert features["percent_encoded_count"] == 1
+    assert features["punycode_detected"] == 0
+    assert features["registered_domain_length"] == len("example.co.uk")
+
+
+def test_domain_digit_ratio_and_hostname_hyphens():
+    features = extract_features("https://bank-2.example.com/path123")
+
+    assert features["domain_digit_ratio"] == 0
+    assert features["hostname_hyphen_count"] == 1
+    assert features["path_digit_ratio"] == 3 / len("/path123")
+
+
+def test_punycode_hostname_detection():
+    features = extract_features("https://xn--bcher-kva.example/login")
+
+    assert features["punycode_detected"] == 1
+
+
+def test_registered_domain_digit_ratio_excludes_subdomains():
+    features = extract_features("https://portal.bank2.com/home")
+
+    assert features["domain_digit_ratio"] == 0.2
+    assert features["registered_domain_length"] == len("bank2.com")
+
+
+def test_registrable_domain_handles_multi_label_suffix():
+    assert registrable_domain("https://shop.example.co.uk/products") == "example.co.uk"
+
+
+def test_generated_hard_negatives_are_complex_but_remain_on_source_host():
+    generated = generate_complex_legitimate_urls(
+        pd.Series(["https://www.example.com"]),
+        max_domains=1,
+    )
+
+    assert len(generated) == 5
+    assert all(url.startswith("https://www.example.com/") for url in generated)
+    assert any(extract_features(url)["query_param_count"] >= 4 for url in generated)
+    assert any(extract_features(url)["path_depth"] >= 5 for url in generated)

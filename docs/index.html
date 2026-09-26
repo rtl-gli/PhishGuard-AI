@@ -163,38 +163,43 @@
         </h2>
 
         <p>
-            I compared logistic regression, a Decision Tree, and a
-            Random Forest. The final model was selected from these
-            experiments using accuracy, recall, F1 score, ROC-AUC,
-            and cross-validation results.
+            I compared logistic regression, a Decision Tree, and Random
+            Forest variants using group-disjoint train, validation, and
+            test data. The selected model adds generated legitimate
+            hard-negative examples to the original 16-feature Random Forest.
         </p>
     </div>
 
     <div class="metrics">
         <div>
-            <strong>85.11%</strong>
+            <strong>87.58%</strong>
             <span>Test accuracy</span>
         </div>
 
         <div>
-            <strong>84.49%</strong>
+            <strong>87.26%</strong>
             <span>Phishing F1 score</span>
         </div>
 
         <div>
-            <strong>81.14%</strong>
+            <strong>85.10%</strong>
             <span>Phishing recall</span>
         </div>
 
         <div>
-            <strong>16</strong>
-            <span>URL features</span>
+            <strong>0.9401</strong>
+            <span>ROC-AUC</span>
         </div>
     </div>
 
     <p class="disclaimer">
         PhishGuard AI is an educational estimate, not a guarantee.
         A low-risk result does not mean a link is definitely safe.
+    </p>
+    <p class="disclaimer">
+        The test dataset is balanced and the model score is not a calibrated
+        real-world phishing probability. The risk cutoff was kept at 0.75 to
+        preserve phishing recall.
     </p>
     <p class="disclaimer">
         Built with Python, scikit-learn, FastAPI, HTML/CSS/JavaScript,

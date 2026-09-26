@@ -2,7 +2,7 @@ import math
 import re
 from urllib.parse import urlparse
 
-from tld import get_tld
+from tld import get_fld, get_tld
 
 
 TRUSTED_TLDS = {
@@ -15,10 +15,30 @@ TRUSTED_TLDS = {
     ".int",
 }
 
+SUSPICIOUS_PATH_KEYWORDS = (
+    "account",
+    "auth",
+    "bank",
+    "billing",
+    "confirm",
+    "credential",
+    "invoice",
+    "login",
+    "password",
+    "payment",
+    "reset",
+    "secure",
+    "signin",
+    "update",
+    "verify",
+    "wallet",
+)
+
 
 def clean_url(url):
     """Clean whitespace from a URL."""
     return str(url).strip()
+
 
 def compute_entropy(text):
     """Calculate Shannon entropy of a string."""
@@ -51,6 +71,20 @@ def extract_features(url):
 
     hostname = parsed.hostname or ""
     path = parsed.path or ""
+    query = parsed.query or ""
+    registered_domain = get_fld(
+        url_string,
+        fail_silently=True,
+    ) or ""
+    registered_tld = get_tld(
+        url_string,
+        fail_silently=True,
+    ) or ""
+    registered_label = (
+        registered_domain[:-(len(registered_tld) + 1)]
+        if registered_tld and registered_domain
+        else ""
+    )
 
     features = {}
 
@@ -162,5 +196,41 @@ def extract_features(url):
 
     # 16. Path length
     features["path_length"] = len(path)
+
+    # Hostname-only and registrable-domain signals separate domain structure
+    # from path and query complexity.
+    features["hostname_entropy"] = compute_entropy(hostname)
+    features["domain_digit_ratio"] = (
+        sum(character.isdigit() for character in registered_label)
+        / len(registered_label)
+        if registered_label
+        else 0.0
+    )
+    features["path_digit_ratio"] = (
+        sum(character.isdigit() for character in path) / len(path)
+        if path
+        else 0.0
+    )
+    features["query_length"] = len(query)
+    features["hostname_hyphen_count"] = hostname.count("-")
+    features["domain_token_count"] = len(
+        re.findall(r"[a-z0-9]+", registered_label)
+    )
+    features["suspicious_keyword_count"] = sum(
+        len(
+            re.findall(
+                rf"(?<![a-z]){re.escape(keyword)}(?![a-z])",
+                path + "?" + query,
+            )
+        )
+        for keyword in SUSPICIOUS_PATH_KEYWORDS
+    )
+    features["percent_encoded_count"] = len(
+        re.findall(r"%[0-9a-f]{2}", url_string)
+    )
+    features["punycode_detected"] = int(
+        any(label.startswith("xn--") for label in hostname.split("."))
+    )
+    features["registered_domain_length"] = len(registered_domain)
 
     return features

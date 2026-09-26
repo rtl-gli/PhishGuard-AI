@@ -1,28 +1,45 @@
 import joblib
+import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
+    roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
-
-from src.project import FEATURE_COLUMNS, MODEL_PATH, load_dataset
-
-df = load_dataset()
-
-X = df[FEATURE_COLUMNS]
-y = df["label"]
-
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y,
+from src.hard_cases import build_feature_frame, generate_complex_legitimate_urls
+from src.project import (
+    BASE_FEATURE_COLUMNS,
+    CANDIDATE_MODEL_PATH,
+    DATASET_REVISION,
+    load_dataset_split,
 )
+
+train_df = load_dataset_split("train")
+validation_df = load_dataset_split("val")
+test_df = load_dataset_split("test")
+
+model_features = BASE_FEATURE_COLUMNS
+X_train = train_df[model_features]
+y_train = train_df["label"]
+hard_negative_urls = generate_complex_legitimate_urls(
+    train_df.loc[train_df["label"] == 0, "url"],
+)
+hard_negatives = build_feature_frame(hard_negative_urls, label=0)
+X_train_augmented = pd.concat(
+    [X_train, hard_negatives[model_features]],
+    ignore_index=True,
+)
+y_train_augmented = pd.concat(
+    [y_train, hard_negatives["label"]],
+    ignore_index=True,
+)
+
+X_validation = validation_df[model_features]
+y_validation = validation_df["label"]
+X_test = test_df[model_features]
+y_test = test_df["label"]
 
 
 model = RandomForestClassifier(
@@ -32,30 +49,35 @@ model = RandomForestClassifier(
     n_jobs=-1,
 )
 
-model.fit(X_train, y_train)
+model.fit(X_train_augmented, y_train_augmented)
+print(f"Training rows before augmentation: {len(X_train)}")
+print(f"Generated legitimate hard negatives: {len(hard_negatives)}")
 
-y_pred = model.predict(X_test)
+for split_name, features, labels in (
+    ("Validation", X_validation, y_validation),
+    ("Test", X_test, y_test),
+):
+    predictions = model.predict(features)
+    probabilities = model.predict_proba(features)[:, list(model.classes_).index(1)]
 
-accuracy = accuracy_score(y_test, y_pred)
-
-print(f"Training samples: {len(X_train)}")
-print(f"Testing samples: {len(X_test)}")
-
-print(f"\nAccuracy: {accuracy:.2%}")
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
-
-print("\nConfusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-
+    print(f"=== {split_name} results ===")
+    print(f"Accuracy: {accuracy_score(labels, predictions):.2%}")
+    print(f"ROC-AUC: {roc_auc_score(labels, probabilities):.4f}")
+    print(classification_report(labels, predictions, digits=4))
+    print("Confusion Matrix (actual rows, predicted columns):")
+    print(confusion_matrix(labels, predictions, labels=[0, 1]))
 
 joblib.dump(
     {
         "model": model,
-        "features": FEATURE_COLUMNS,
+        "features": model_features,
+        "training_rows": len(X_train_augmented),
+        "hard_negative_rows": len(hard_negatives),
+        "dataset_revision": DATASET_REVISION,
+        "hard_negative_domains": 200,
+        "hard_negative_templates_per_domain": 5,
     },
-    MODEL_PATH,
+    CANDIDATE_MODEL_PATH,
 )
 
-print(f"\nModel saved to: {MODEL_PATH}")
+print(f"\nCandidate model saved to: {CANDIDATE_MODEL_PATH}")
